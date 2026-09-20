@@ -64,12 +64,7 @@
     transition: 0.3s;
   }
   .login-box button:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(214,51,108,0.35); }
-  .login-error {
-    color: var(--danger);
-    font-size: 0.85rem;
-    margin-top: 12px;
-    min-height: 20px;
-  }
+  .login-error { color: var(--danger); font-size: 0.85rem; margin-top: 12px; min-height: 20px; }
   .login-hint {
     margin-top: 20px;
     font-size: 0.8rem;
@@ -144,11 +139,7 @@
     flex-wrap: wrap;
     align-items: center;
   }
-  .search-box {
-    flex: 1;
-    min-width: 200px;
-    position: relative;
-  }
+  .search-box { flex: 1; min-width: 200px; position: relative; }
   .search-box input {
     width: 100%;
     padding: 12px 16px 12px 40px;
@@ -191,14 +182,8 @@
     box-shadow: 0 4px 15px rgba(214,51,108,0.08);
     overflow-x: auto;
   }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    min-width: 800px;
-  }
-  thead {
-    background: #fdf2f6;
-  }
+  table { width: 100%; border-collapse: collapse; min-width: 800px; }
+  thead { background: #fdf2f6; }
   th {
     text-align: left;
     padding: 14px 16px;
@@ -340,17 +325,23 @@
   .form-group textarea:focus { border-color: var(--primary); background: #fff; }
   .form-group textarea { resize: vertical; min-height: 80px; }
   .form-group .hint { font-size: 0.75rem; color: var(--muted); margin-top: 4px; }
+
+  /* Color picker */
   .color-inputs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
-  .color-chip {
+  .color-chip-wrap { position: relative; }
+  .color-chip-wrap input[type="color"] {
     width: 36px; height: 36px;
     border-radius: 50%;
     cursor: pointer;
     border: 2px solid #f0d0dd;
-    position: relative;
-    transition: 0.2s;
+    padding: 0;
+    background: none;
+    appearance: none;
+    -webkit-appearance: none;
   }
-  .color-chip:hover { transform: scale(1.1); }
-  .color-chip .remove-color {
+  .color-chip-wrap input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+  .color-chip-wrap input[type="color"]::-webkit-color-swatch { border: none; border-radius: 50%; }
+  .color-chip-wrap .remove-color {
     position: absolute;
     top: -6px;
     right: -6px;
@@ -378,21 +369,113 @@
     transition: 0.2s;
   }
   .add-color-btn:hover { background: #fdf2f6; }
+
+  /* ===== UPLOAD FOTO ===== */
+  .upload-zone {
+    border: 3px dashed #f0d0dd;
+    border-radius: 14px;
+    padding: 24px;
+    text-align: center;
+    background: #fdf2f6;
+    transition: 0.3s;
+    cursor: pointer;
+    position: relative;
+  }
+  .upload-zone:hover {
+    border-color: var(--primary);
+    background: #ffe0ec;
+  }
+  .upload-zone .up-icon { font-size: 2.5rem; display: block; margin-bottom: 8px; }
+  .upload-zone .up-title { font-weight: 700; color: var(--primary-dark); margin-bottom: 4px; }
+  .upload-zone .up-sub { font-size: 0.8rem; color: var(--muted); }
+  .upload-zone input[type="file"] {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+  }
+  .upload-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+  }
+  .upload-buttons label {
+    flex: 1;
+    min-width: 130px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: white;
+    border: 2px solid #f0d0dd;
+    color: var(--primary-dark);
+    font-weight: 700;
+    font-size: 0.85rem;
+    text-align: center;
+    cursor: pointer;
+    transition: 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    position: relative;
+    overflow: hidden;
+    text-transform: none;
+    letter-spacing: 0;
+    margin-bottom: 0;
+  }
+  .upload-buttons label:hover {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+  }
+  .upload-buttons label input[type="file"] {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+  }
+  .img-preview-wrap {
+    position: relative;
+    margin-top: 12px;
+  }
   .img-preview {
     width: 100%;
-    height: 180px;
-    border-radius: 12px;
+    height: 220px;
+    border-radius: 14px;
     background-size: cover;
     background-position: center;
     background-color: #f5e5ec;
-    border: 2px dashed #f0d0dd;
-    margin-top: 8px;
+    border: 2px solid #f0d0dd;
     display: flex;
     align-items: center;
     justify-content: center;
     color: var(--muted);
     font-size: 0.85rem;
+    text-align: center;
+    padding: 20px;
   }
+  .remove-img-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: var(--danger);
+    color: white;
+    border: 2px solid white;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+  }
+  .remove-img-btn:hover { background: #c0392b; }
+
   .form-footer {
     padding: 18px 24px;
     background: #fdf2f6;
@@ -501,7 +584,6 @@
   </div>
 
   <div class="admin-container">
-    <!-- Stats -->
     <div class="stats">
       <div class="stat-card">
         <div class="label">Total Produk</div>
@@ -521,7 +603,6 @@
       </div>
     </div>
 
-    <!-- Toolbar -->
     <div class="toolbar">
       <div class="search-box">
         <input type="text" id="searchInput" placeholder="Cari produk..." oninput="renderTable()">
@@ -529,7 +610,6 @@
       <button class="btn-add-product" onclick="openForm()">➕ Tambah Produk</button>
     </div>
 
-    <!-- Table -->
     <div class="table-wrap">
       <table>
         <thead>
@@ -616,14 +696,35 @@
       <div class="form-group">
         <label>Pilihan Warna <span class="req">*</span></label>
         <div class="color-inputs" id="colorInputs"></div>
-        <div class="hint">Klik lingkaran warna untuk ganti warna, klik + untuk tambah, klik × untuk hapus</div>
+        <div class="hint">Klik lingkaran warna untuk ganti, klik + untuk tambah, klik × untuk hapus</div>
       </div>
 
+      <!-- ===== FOTO PRODUK (UPLOAD) ===== -->
       <div class="form-group">
-        <label>URL Foto Produk <span class="req">*</span></label>
-        <input type="text" id="fImg" placeholder="https://... atau images/foto.jpg" oninput="updateImgPreview()">
-        <div class="hint">Bisa pakai link online (imgur, unsplash) atau file lokal (images/nama.jpg)</div>
-        <div class="img-preview" id="imgPreview">Preview foto akan muncul di sini</div>
+        <label>Foto Produk <span class="req">*</span></label>
+        
+        <div class="upload-buttons">
+          <label>
+            📁 Pilih dari Galeri
+            <input type="file" accept="image/*" onchange="handleFileSelect(event)">
+          </label>
+          <label>
+            📷 Ambil dari Kamera
+            <input type="file" accept="image/*" capture="environment" onchange="handleFileSelect(event)">
+          </label>
+        </div>
+
+        <div class="img-preview-wrap" id="imgPreviewWrap" style="display:none;">
+          <div class="img-preview" id="imgPreview"></div>
+          <button class="remove-img-btn" onclick="removeImage()" title="Hapus foto">✕</button>
+        </div>
+        
+        <div class="hint" style="margin-top:8px;">
+          💡 Foto otomatis dikompres & disimpan. Ukuran ideal: 600 × 800 px.
+        </div>
+        
+        <!-- Hidden input untuk menyimpan base64 -->
+        <input type="hidden" id="fImg">
       </div>
 
       <div class="form-group">
@@ -730,6 +831,7 @@ const DEFAULT_PRODUCTS = [
 let products = [];
 let tempColors = [];
 let currentEditId = null;
+let currentImageBase64 = ''; // foto hasil upload
 
 /* ===== INIT ===== */
 function loadProducts() {
@@ -747,7 +849,17 @@ function loadProducts() {
 }
 
 function saveProducts() {
-  localStorage.setItem('shakira_products', JSON.stringify(products));
+  try {
+    localStorage.setItem('shakira_products', JSON.stringify(products));
+    return true;
+  } catch(e) {
+    if (e.name === 'QuotaExceededError') {
+      showToast('❌ Memori browser penuh! Coba hapus beberapa produk.', 'error');
+    } else {
+      showToast('❌ Gagal menyimpan: ' + e.message, 'error');
+    }
+    return false;
+  }
 }
 
 /* ===== LOGIN ===== */
@@ -785,22 +897,34 @@ function formatRupiah(n) {
   return 'Rp ' + (n || 0).toLocaleString('id-ID');
 }
 
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 function showToast(msg, type = '') {
   const toast = document.getElementById('toast');
   toast.textContent = msg;
   toast.className = 'toast show ' + type;
   clearTimeout(window._toastTimer);
-  window._toastTimer = setTimeout(() => toast.classList.remove('show'), 2500);
+  window._toastTimer = setTimeout(() => toast.classList.remove('show'), 3000);
 }
 
 /* ===== STATS ===== */
 function updateStats() {
   document.getElementById('statTotal').textContent = products.length;
-  const cats = new Set(products.map(p => p.category));
+  const cats = new Set(products.map(p => p.category).filter(Boolean));
   document.getElementById('statCat').textContent = cats.size;
   const diskon = products.filter(p => p.oldPrice && p.oldPrice > p.price).length;
   document.getElementById('statDiskon').textContent = diskon;
-  const avg = products.length ? Math.round(products.reduce((s, p) => s + Number(p.price || 0), 0) / products.length) : 0;
+  const avg = products.length 
+    ? Math.round(products.reduce((s, p) => s + Number(p.price || 0), 0) / products.length) 
+    : 0;
   document.getElementById('statAvg').textContent = formatRupiah(avg);
 }
 
@@ -808,7 +932,7 @@ function updateStats() {
 function renderTable() {
   const q = (document.getElementById('searchInput').value || '').toLowerCase();
   const filtered = products.filter(p =>
-    !q || p.name.toLowerCase().includes(q) || p.category.toLowerCase().includes(q)
+    !q || (p.name || '').toLowerCase().includes(q) || (p.category || '').toLowerCase().includes(q)
   );
 
   const tbody = document.getElementById('productTable');
@@ -827,19 +951,19 @@ function renderTable() {
 
   tbody.innerHTML = filtered.map(p => `
     <tr>
-      <td><div class="table-img" style="background-image:url('${p.img}')"></div></td>
+      <td><div class="table-img" style="background-image:url('${escapeHtml(p.img)}')"></div></td>
       <td>
-        <div class="table-name">${p.name}</div>
+        <div class="table-name">${escapeHtml(p.name)}</div>
         <div style="font-size:0.75rem;color:var(--muted);">ID: ${p.id} • ⭐ ${p.rating || '-'} • ${p.sold || 0} terjual</div>
       </td>
-      <td><span class="table-cat">${p.category}</span></td>
+      <td><span class="table-cat">${escapeHtml(p.category)}</span></td>
       <td>
         <div class="table-price">${formatRupiah(p.price)}</div>
         ${p.oldPrice && p.oldPrice > p.price ? `<div class="table-old">${formatRupiah(p.oldPrice)}</div>` : ''}
       </td>
       <td>
         <div style="display:flex;gap:4px;flex-wrap:wrap;">
-          ${(p.colors || []).map(c => `<span style="width:18px;height:18px;background:${c};border-radius:50%;display:inline-block;border:1px solid #ddd;"></span>`).join('')}
+          ${(p.colors || []).map(c => `<span style="width:18px;height:18px;background:${escapeHtml(c)};border-radius:50%;display:inline-block;border:1px solid #ddd;"></span>`).join('')}
         </div>
       </td>
       <td>
@@ -855,7 +979,6 @@ function renderTable() {
 /* ===== FORM ===== */
 function openForm(productId = null) {
   currentEditId = productId;
-  const form = document.getElementById('formOverlay');
   const title = document.getElementById('formTitle');
 
   if (productId === null) {
@@ -873,8 +996,9 @@ function openForm(productId = null) {
     document.getElementById('fImg').value = '';
     document.getElementById('fDesc').value = '';
     tempColors = ['#d6336c', '#000', '#fff'];
+    currentImageBase64 = '';
     renderColorInputs();
-    updateImgPreview();
+    renderImagePreview();
   } else {
     const p = products.find(x => x.id === productId);
     if (!p) return;
@@ -892,27 +1016,129 @@ function openForm(productId = null) {
     document.getElementById('fImg').value = p.img || '';
     document.getElementById('fDesc').value = p.desc || '';
     tempColors = [...(p.colors || [])];
+    if (tempColors.length === 0) tempColors = ['#d6336c'];
+    currentImageBase64 = p.img || '';
     renderColorInputs();
-    updateImgPreview();
+    renderImagePreview();
   }
 
-  form.classList.add('active');
+  document.getElementById('formOverlay').classList.add('active');
 }
 
 function closeForm() {
   document.getElementById('formOverlay').classList.remove('active');
   currentEditId = null;
   tempColors = [];
+  currentImageBase64 = '';
+}
+
+/* ===== FOTO: HANDLE UPLOAD ===== */
+function handleFileSelect(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  if (!file.type.startsWith('image/')) {
+    showToast('❌ File harus berupa gambar!', 'error');
+    event.target.value = '';
+    return;
+  }
+
+  // Batas maksimum file asli: 10 MB
+  if (file.size > 10 * 1024 * 1024) {
+    showToast('❌ Foto terlalu besar (maks 10 MB)!', 'error');
+    event.target.value = '';
+    return;
+  }
+
+  showToast('⏳ Memproses foto...', '');
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    compressImage(e.target.result, 800, 0.75, function(compressed) {
+      currentImageBase64 = compressed;
+      document.getElementById('fImg').value = compressed;
+      renderImagePreview();
+      showToast('✅ Foto berhasil diupload!', 'success');
+    });
+  };
+  reader.onerror = function() {
+    showToast('❌ Gagal membaca file!', 'error');
+  };
+  reader.readAsDataURL(file);
+
+  // Reset input agar bisa pilih file yang sama lagi
+  event.target.value = '';
+}
+
+/* ===== Kompres gambar ke max width & quality ===== */
+function compressImage(dataUrl, maxWidth, quality, callback) {
+  const img = new Image();
+  img.onload = function() {
+    const canvas = document.createElement('canvas');
+    let w = img.width;
+    let h = img.height;
+
+    if (w > maxWidth) {
+      h = Math.round(h * maxWidth / w);
+      w = maxWidth;
+    }
+
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, w, h);
+    ctx.drawImage(img, 0, 0, w, h);
+
+    // Coba quality tinggi dulu, turunkan jika perlu
+    let q = quality;
+    let result = canvas.toDataURL('image/jpeg', q);
+
+    // Jika > 400 KB, kompres lebih
+    while (result.length > 400 * 1024 && q > 0.3) {
+      q -= 0.1;
+      result = canvas.toDataURL('image/jpeg', q);
+    }
+
+    callback(result);
+  };
+  img.onerror = function() {
+    showToast('❌ Gagal memuat gambar!', 'error');
+  };
+  img.src = dataUrl;
+}
+
+/* ===== RENDER PREVIEW FOTO ===== */
+function renderImagePreview() {
+  const wrap = document.getElementById('imgPreviewWrap');
+  const preview = document.getElementById('imgPreview');
+
+  if (currentImageBase64) {
+    wrap.style.display = 'block';
+    preview.style.backgroundImage = `url('${currentImageBase64}')`;
+    preview.textContent = '';
+  } else {
+    wrap.style.display = 'none';
+    preview.style.backgroundImage = '';
+    preview.textContent = '';
+  }
+}
+
+function removeImage() {
+  currentImageBase64 = '';
+  document.getElementById('fImg').value = '';
+  renderImagePreview();
+  showToast('🗑️ Foto dihapus');
 }
 
 /* ===== COLOR PICKER ===== */
 function renderColorInputs() {
   const wrap = document.getElementById('colorInputs');
   wrap.innerHTML = tempColors.map((c, i) => `
-    <div style="position:relative;">
-      <input type="color" value="${c}" 
+    <div class="color-chip-wrap">
+      <input type="color" value="${escapeHtml(c)}" 
              onchange="updateColor(${i}, this.value)"
-             style="width:36px;height:36px;border:2px solid #f0d0dd;border-radius:50%;cursor:pointer;padding:0;background:none;">
+             title="Klik untuk ubah warna">
       <button class="remove-color" onclick="removeColor(${i})" title="Hapus">×</button>
     </div>
   `).join('') + `<button class="add-color-btn" onclick="addColor()" title="Tambah warna">+</button>`;
@@ -936,30 +1162,16 @@ function removeColor(i) {
   renderColorInputs();
 }
 
-/* ===== IMG PREVIEW ===== */
-function updateImgPreview() {
-  const url = document.getElementById('fImg').value.trim();
-  const prev = document.getElementById('imgPreview');
-  if (!url) {
-    prev.style.backgroundImage = '';
-    prev.textContent = 'Preview foto akan muncul di sini';
-  } else {
-    prev.style.backgroundImage = `url('${url}')`;
-    prev.textContent = '';
-  }
-}
-
-/* ===== SAVE ===== */
+/* ===== SAVE PRODUK ===== */
 function saveProduct() {
   const name = document.getElementById('fName').value.trim();
   const category = document.getElementById('fCategory').value;
   const price = Number(document.getElementById('fPrice').value);
   const oldPrice = Number(document.getElementById('fOldPrice').value) || 0;
-  const img = document.getElementById('fImg').value.trim();
 
   if (!name) return showToast('❌ Nama produk wajib diisi!', 'error');
   if (!price || price <= 0) return showToast('❌ Harga jual wajib diisi!', 'error');
-  if (!img) return showToast('❌ URL foto wajib diisi!', 'error');
+  if (!currentImageBase64) return showToast('❌ Foto produk wajib diupload!', 'error');
   if (tempColors.length === 0) return showToast('❌ Minimal 1 warna!', 'error');
 
   const tagsRaw = document.getElementById('fTags').value.trim();
@@ -976,25 +1188,29 @@ function saveProduct() {
     size: document.getElementById('fSize').value.trim() || 'All Size',
     tags,
     colors: [...tempColors],
-    img,
+    img: currentImageBase64,
     desc: document.getElementById('fDesc').value.trim() || 'Produk berkualitas dari Shakira Hijab Store.'
   };
 
+  let oldProducts = JSON.parse(JSON.stringify(products));
+
   if (currentEditId !== null) {
-    // Edit
     const idx = products.findIndex(p => p.id === currentEditId);
     if (idx !== -1) {
       products[idx] = { ...products[idx], ...productData };
-      showToast('✅ Produk berhasil diperbarui!', 'success');
     }
   } else {
-    // Tambah baru
     const maxId = products.reduce((m, p) => Math.max(m, p.id || 0), 0);
     products.push({ id: maxId + 1, ...productData });
-    showToast('✅ Produk baru berhasil ditambahkan!', 'success');
   }
 
-  saveProducts();
+  const ok = saveProducts();
+  if (!ok) {
+    products = oldProducts; // rollback
+    return;
+  }
+
+  showToast(currentEditId !== null ? '✅ Produk berhasil diperbarui!' : '✅ Produk baru ditambahkan!', 'success');
   renderTable();
   updateStats();
   closeForm();
@@ -1011,7 +1227,7 @@ function confirmDelete(id) {
   if (!p) return;
   document.getElementById('confirmIcon').textContent = '⚠️';
   document.getElementById('confirmTitle').textContent = 'Hapus Produk?';
-  document.getElementById('confirmMsg').innerHTML = `Produk <strong>"${p.name}"</strong> akan dihapus permanen. Tindakan ini tidak bisa dibatalkan.`;
+  document.getElementById('confirmMsg').innerHTML = `Produk <strong>"${escapeHtml(p.name)}"</strong> akan dihapus permanen. Tindakan ini tidak bisa dibatalkan.`;
   const btn = document.getElementById('confirmYesBtn');
   btn.onclick = () => {
     products = products.filter(x => x.id !== id);
