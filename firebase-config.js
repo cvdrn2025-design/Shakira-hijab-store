@@ -14,3 +14,4 @@ firebase.initializeApp(firebaseConfig);
 // Export global
 const db = firebase.firestore();
 const productsCollection = db.collection('products');
+const ordersCollection = db.collection('orders');  // ← BARU
