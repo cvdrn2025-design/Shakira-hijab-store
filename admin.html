@@ -1,0 +1,1732 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin - Shakira Hijab Store</title>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+
+<style>
+  :root {
+    --primary: #d6336c;
+    --primary-dark: #a61e4d;
+    --bg: #fdf2f6;
+    --text: #2d2d2d;
+    --muted: #888;
+    --success: #00b894;
+    --danger: #ff4757;
+    --warning: #fdcb6e;
+    --info: #0984e3;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
+  body { background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  /* LOGIN */
+  .login-screen {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 20px;
+    background: linear-gradient(135deg, #f8a5c2, #ffd6e7);
+  }
+  .login-box {
+    background: white;
+    padding: 40px 30px;
+    border-radius: 22px;
+    max-width: 400px;
+    width: 100%;
+    box-shadow: 0 20px 60px rgba(214,51,108,0.25);
+    text-align: center;
+  }
+  .login-box .logo-big { font-size: 3rem; margin-bottom: 10px; }
+  .login-box h1 { color: var(--primary-dark); font-size: 1.5rem; margin-bottom: 6px; }
+  .login-box p { color: var(--muted); font-size: 0.9rem; margin-bottom: 25px; }
+  .login-box input {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid #f0d0dd;
+    border-radius: 12px;
+    font-size: 1rem;
+    margin-bottom: 15px;
+    outline: none;
+    transition: 0.3s;
+  }
+  .login-box input:focus { border-color: var(--primary); }
+  .login-box button {
+    width: 100%;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white;
+    border: none;
+    padding: 14px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  .login-box button:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(214,51,108,0.35); }
+  .login-error { color: var(--danger); font-size: 0.85rem; margin-top: 12px; min-height: 20px; }
+  .login-hint { margin-top: 20px; font-size: 0.8rem; color: var(--muted); background: #fdf2f6; padding: 10px; border-radius: 8px; }
+
+  /* ADMIN PANEL */
+  .admin-panel { display: none; }
+  .admin-panel.active { display: block; }
+  .admin-header {
+    background: linear-gradient(135deg, #d6336c, #a61e4d);
+    color: white;
+    padding: 16px 5%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 20px rgba(214,51,108,0.3);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .admin-header .brand { font-size: 1.2rem; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+  .admin-header .brand small { display: block; font-size: 0.7rem; font-weight: 400; opacity: 0.8; }
+  .admin-header .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  .admin-header button {
+    background: rgba(255,255,255,0.2);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.85rem;
+    transition: 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .admin-header button:hover { background: white; color: var(--primary); }
+  .admin-header .logout-btn:hover { background: var(--danger); color: white; }
+
+  .sync-status {
+    font-size: 0.75rem;
+    padding: 4px 10px;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.15);
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .sync-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--warning);
+    animation: pulse 1.5s infinite;
+  }
+  .sync-dot.online { background: var(--success); animation: none; }
+  .sync-dot.offline { background: var(--danger); animation: none; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+  /* ===== TABS ===== */
+  .tabs {
+    display: flex;
+    gap: 5px;
+    padding: 0 5%;
+    background: white;
+    border-bottom: 2px solid #f0d0dd;
+    position: sticky;
+    top: 65px;
+    z-index: 99;
+    overflow-x: auto;
+  }
+  .tab-btn {
+    background: none;
+    border: none;
+    padding: 16px 22px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 0.92rem;
+    color: var(--muted);
+    border-bottom: 3px solid transparent;
+    transition: 0.3s;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .tab-btn:hover { color: var(--primary-dark); }
+  .tab-btn.active {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+  }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  .admin-container { max-width: 1300px; margin: 0 auto; padding: 25px 5%; }
+
+  /* STATS */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 15px;
+    margin-bottom: 25px;
+  }
+  .stat-card {
+    background: white;
+    padding: 20px;
+    border-radius: 16px;
+    box-shadow: 0 4px 15px rgba(214,51,108,0.08);
+    border-left: 5px solid var(--primary);
+  }
+  .stat-card.success { border-left-color: var(--success); }
+  .stat-card.warning { border-left-color: var(--warning); }
+  .stat-card.info { border-left-color: var(--info); }
+  .stat-card .label { font-size: 0.8rem; color: var(--muted); margin-bottom: 6px; font-weight: 600; display: flex; align-items: center; gap: 5px; }
+  .stat-card .value { font-size: 1.6rem; font-weight: 800; color: var(--primary-dark); }
+  .stat-card .sub { font-size: 0.75rem; color: var(--muted); margin-top: 4px; }
+
+  /* TOOLBAR */
+  .toolbar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .search-box { flex: 1; min-width: 200px; position: relative; }
+  .search-box input {
+    width: 100%;
+    padding: 12px 16px 12px 40px;
+    border: 2px solid #f0d0dd;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    outline: none;
+    transition: 0.3s;
+  }
+  .search-box input:focus { border-color: var(--primary); }
+  .search-box::before {
+    content: '🔍';
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1rem;
+  }
+
+  .btn-add-product {
+    background: linear-gradient(135deg, var(--success), #009c7b);
+    color: white;
+    border: none;
+    padding: 12px 22px;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: 0.3s;
+    font-size: 0.95rem;
+  }
+  .btn-add-product:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,184,148,0.35); }
+
+  .filter-group {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .filter-chip {
+    background: white;
+    border: 2px solid #f0d0dd;
+    color: var(--primary-dark);
+    padding: 8px 16px;
+    border-radius: 30px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.82rem;
+    transition: 0.3s;
+    white-space: nowrap;
+  }
+  .filter-chip:hover, .filter-chip.active {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+  }
+
+  /* TABLE */
+  .table-wrap {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(214,51,108,0.08);
+    overflow-x: auto;
+  }
+  table { width: 100%; border-collapse: collapse; min-width: 800px; }
+  thead { background: #fdf2f6; }
+  th {
+    text-align: left;
+    padding: 14px 16px;
+    font-size: 0.82rem;
+    color: var(--primary-dark);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+  }
+  td {
+    padding: 12px 16px;
+    border-top: 1px solid #f5e5ec;
+    font-size: 0.9rem;
+    vertical-align: middle;
+  }
+  .table-img {
+    width: 55px;
+    height: 55px;
+    border-radius: 10px;
+    background-size: cover;
+    background-position: center;
+    background-color: #f0d0dd;
+  }
+  .table-name { font-weight: 700; color: var(--text); }
+  .table-cat {
+    display: inline-block;
+    background: #fdf2f6;
+    color: var(--primary);
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+  .table-price { font-weight: 700; color: var(--primary); }
+  .table-old { font-size: 0.78rem; color: var(--muted); text-decoration: line-through; }
+  .action-btns { display: flex; gap: 6px; }
+  .act-btn {
+    width: 34px;
+    height: 34px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .btn-edit { background: #fff3cd; color: #856404; }
+  .btn-edit:hover { background: var(--warning); color: white; }
+  .btn-delete { background: #ffe0e3; color: var(--danger); }
+  .btn-delete:hover { background: var(--danger); color: white; }
+  .btn-view-order { background: #d4edff; color: var(--info); }
+  .btn-view-order:hover { background: var(--info); color: white; }
+
+  .empty-row td {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--muted);
+    font-size: 1rem;
+  }
+  .empty-row .emoji { font-size: 3rem; display: block; margin-bottom: 10px; }
+
+  /* ORDER STATUS BADGES */
+  .status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .status-baru { background: #fff3cd; color: #856404; }
+  .status-diproses { background: #d4edff; color: #0056b3; }
+  .status-selesai { background: #d4f5e3; color: #006c4e; }
+  .status-batal { background: #ffe0e3; color: #a61e4d; }
+
+  .payment-tag {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    background: #f0f0f0;
+  }
+  .payment-tag.wa { background: #d4f5e3; color: #006c4e; }
+  .payment-tag.qris { background: #e0d4ff; color: #5f27cd; }
+
+  /* ORDER DETAIL */
+  .order-items {
+    background: #fdf2f6;
+    padding: 12px;
+    border-radius: 10px;
+    margin: 8px 0;
+  }
+  .order-item-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    padding: 6px 0;
+    border-bottom: 1px dashed #f0d0dd;
+  }
+  .order-item-row:last-child { border-bottom: none; }
+
+  /* FORM MODAL */
+  .form-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    display: none;
+    align-items: flex-start;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+    overflow-y: auto;
+    backdrop-filter: blur(4px);
+  }
+  .form-overlay.active { display: flex; }
+  .form-modal {
+    background: white;
+    border-radius: 22px;
+    max-width: 750px;
+    width: 100%;
+    margin: 20px auto;
+    animation: slideDown 0.3s ease;
+    overflow: hidden;
+  }
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .form-header {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white;
+    padding: 20px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .form-header h2 { font-size: 1.2rem; }
+  .form-header button {
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: white;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.1rem;
+  }
+  .form-body { padding: 24px; max-height: 70vh; overflow-y: auto; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+  .form-group { margin-bottom: 15px; }
+  .form-group label {
+    display: block;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--primary-dark);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .form-group label .req { color: var(--danger); }
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    width: 100%;
+    padding: 11px 14px;
+    border: 2px solid #f0d0dd;
+    border-radius: 10px;
+    font-size: 0.92rem;
+    outline: none;
+    transition: 0.3s;
+    font-family: inherit;
+  }
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus { border-color: var(--primary); background: #fff; }
+  .form-group textarea { resize: vertical; min-height: 80px; }
+  .form-group .hint { font-size: 0.75rem; color: var(--muted); margin-top: 4px; }
+
+  .color-inputs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+  .color-chip-wrap { position: relative; }
+  .color-chip-wrap input[type="color"] {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid #f0d0dd;
+    padding: 0;
+    background: none;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+  .color-chip-wrap input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+  .color-chip-wrap input[type="color"]::-webkit-color-swatch { border: none; border-radius: 50%; }
+  .color-chip-wrap .remove-color {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background: var(--danger);
+    color: white;
+    border: 2px solid white;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    font-size: 0.7rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    line-height: 1;
+  }
+  .add-color-btn {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    border: 2px dashed var(--primary);
+    background: white;
+    color: var(--primary);
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+  .add-color-btn:hover { background: #fdf2f6; }
+
+  .upload-buttons { display: flex; gap: 10px; margin-top: 8px; flex-wrap: wrap; }
+  .upload-buttons label {
+    flex: 1;
+    min-width: 130px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: white;
+    border: 2px solid #f0d0dd;
+    color: var(--primary-dark);
+    font-weight: 700;
+    font-size: 0.85rem;
+    text-align: center;
+    cursor: pointer;
+    transition: 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    position: relative;
+    overflow: hidden;
+    text-transform: none;
+    letter-spacing: 0;
+    margin-bottom: 0;
+  }
+  .upload-buttons label:hover { background: var(--primary); color: white; border-color: var(--primary); }
+  .upload-buttons label input[type="file"] {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+  }
+  .img-preview-wrap { position: relative; margin-top: 12px; }
+  .img-preview {
+    width: 100%;
+    height: 220px;
+    border-radius: 14px;
+    background-size: cover;
+    background-position: center;
+    background-color: #f5e5ec;
+    border: 2px solid #f0d0dd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted);
+    font-size: 0.85rem;
+    text-align: center;
+    padding: 20px;
+  }
+  .remove-img-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: var(--danger);
+    color: white;
+    border: 2px solid white;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+  }
+
+  .form-footer {
+    padding: 18px 24px;
+    background: #fdf2f6;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .btn-save {
+    background: linear-gradient(135deg, var(--success), #009c7b);
+    color: white;
+    border: none;
+    padding: 12px 26px;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 0.95rem;
+    transition: 0.3s;
+  }
+  .btn-save:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,184,148,0.35); }
+  .btn-save:disabled { opacity: 0.6; cursor: not-allowed; }
+  .btn-cancel-form {
+    background: white;
+    color: var(--text);
+    border: 2px solid #f0d0dd;
+    padding: 12px 22px;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 0.95rem;
+  }
+  .btn-cancel-form:hover { background: #fdf2f6; }
+
+  .confirm-modal {
+    background: white;
+    border-radius: 20px;
+    max-width: 380px;
+    width: 100%;
+    padding: 30px 25px;
+    text-align: center;
+    animation: slideDown 0.3s ease;
+    margin: auto;
+  }
+  .confirm-modal .icon { font-size: 3rem; margin-bottom: 10px; }
+  .confirm-modal h3 { color: var(--primary-dark); margin-bottom: 8px; font-size: 1.2rem; }
+  .confirm-modal p { color: var(--muted); font-size: 0.9rem; margin-bottom: 22px; line-height: 1.5; }
+  .confirm-modal .btns { display: flex; gap: 10px; }
+  .confirm-modal .btns button { flex: 1; padding: 12px; border-radius: 10px; border: none; font-weight: 700; cursor: pointer; font-size: 0.9rem; }
+  .confirm-yes { background: var(--danger); color: white; }
+  .confirm-no { background: #f0d0dd; color: var(--primary-dark); }
+
+  /* Order detail modal */
+  .order-detail-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #f5e5ec;
+    font-size: 0.9rem;
+  }
+  .order-detail-row:last-child { border-bottom: none; }
+  .order-detail-row strong { color: var(--primary-dark); }
+
+  .status-select {
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 2px solid #f0d0dd;
+    font-weight: 700;
+    font-size: 0.85rem;
+    cursor: pointer;
+    outline: none;
+    background: white;
+  }
+  .status-select:focus { border-color: var(--primary); }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--primary-dark);
+    color: white;
+    padding: 14px 26px;
+    border-radius: 12px;
+    font-weight: 600;
+    z-index: 2000;
+    transition: 0.4s;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+    max-width: 90vw;
+    text-align: center;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.success { background: var(--success); }
+  .toast.error { background: var(--danger); }
+
+  @media (max-width: 600px) {
+    .form-row { grid-template-columns: 1fr; }
+    .admin-header .brand small { display: none; }
+    .stat-card .value { font-size: 1.3rem; }
+    .tab-btn { padding: 14px 16px; font-size: 0.85rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-box">
+    <div class="logo-big">🧕</div>
+    <h1>Admin Panel</h1>
+    <p>Shakira Hijab Store</p>
+    <input type="password" id="loginPassword" placeholder="Masukkan password admin" onkeypress="if(event.key==='Enter')doLogin()">
+    <button onclick="doLogin()">🔓 Masuk</button>
+    <div class="login-error" id="loginError"></div>
+    <div class="login-hint">💡 Password default: <strong>shakira2025</strong></div>
+  </div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div class="admin-panel" id="adminPanel">
+  <div class="admin-header">
+    <div class="brand">
+      🧕 Shakira <small>Admin Panel</small>
+    </div>
+    <div class="actions">
+      <span class="sync-status">
+        <span class="sync-dot" id="syncDot"></span>
+        <span id="syncText">Menghubungkan...</span>
+      </span>
+      <button onclick="window.open('index.html', '_blank')">👁️ Lihat Toko</button>
+      <button onclick="resetToDefault()">🔄 Reset Produk</button>
+      <button class="logout-btn" onclick="logout()">🚪 Keluar</button>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="products" onclick="switchTab('products')">
+      📦 Produk
+    </button>
+    <button class="tab-btn" data-tab="sales" onclick="switchTab('sales')">
+      📊 Catatan Penjualan
+    </button>
+    <button class="tab-btn" data-tab="reports" onclick="switchTab('reports')">
+      📈 Rekap Penjualan
+    </button>
+  </div>
+
+  <!-- ============ TAB PRODUK ============ -->
+  <div class="tab-content active" id="tab-products">
+    <div class="admin-container">
+      <div class="stats">
+        <div class="stat-card">
+          <div class="label">📦 Total Produk</div>
+          <div class="value" id="statTotal">0</div>
+        </div>
+        <div class="stat-card info">
+          <div class="label">🏷️ Total Kategori</div>
+          <div class="value" id="statCat">0</div>
+        </div>
+        <div class="stat-card warning">
+          <div class="label">🔥 Produk Diskon</div>
+          <div class="value" id="statDiskon">0</div>
+        </div>
+        <div class="stat-card success">
+          <div class="label">💰 Rata-rata Harga</div>
+          <div class="value" id="statAvg">Rp 0</div>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <div class="search-box">
+          <input type="text" id="searchInput" placeholder="Cari produk..." oninput="renderTable()">
+        </div>
+        <button class="btn-add-product" onclick="openForm()">➕ Tambah Produk</button>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:70px;">Foto</th>
+              <th>Nama Produk</th>
+              <th>Kategori</th>
+              <th>Harga</th>
+              <th>Stok Warna</th>
+              <th style="width:100px;">Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="productTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ TAB PENJUALAN ============ -->
+  <div class="tab-content" id="tab-sales">
+    <div class="admin-container">
+      <div class="stats">
+        <div class="stat-card success">
+          <div class="label">💰 Total Omzet</div>
+          <div class="value" id="salesTotalRevenue">Rp 0</div>
+          <div class="sub" id="salesTotalRevenueSub">Semua waktu</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">📦 Total Order</div>
+          <div class="value" id="salesTotalOrders">0</div>
+        </div>
+        <div class="stat-card warning">
+          <div class="label">🆕 Order Baru</div>
+          <div class="value" id="salesNewOrders">0</div>
+        </div>
+        <div class="stat-card info">
+          <div class="label">⏳ Order Diproses</div>
+          <div class="value" id="salesProcessingOrders">0</div>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <div class="search-box">
+          <input type="text" id="orderSearchInput" placeholder="Cari nama pembeli atau no WA..." oninput="renderOrders()">
+        </div>
+        <div class="filter-group">
+          <button class="filter-chip active" data-period="all" onclick="setOrderPeriod('all')">Semua</button>
+          <button class="filter-chip" data-period="today" onclick="setOrderPeriod('today')">Hari Ini</button>
+          <button class="filter-chip" data-period="week" onclick="setOrderPeriod('week')">7 Hari</button>
+          <button class="filter-chip" data-period="month" onclick="setOrderPeriod('month')">30 Hari</button>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <div class="filter-group">
+          <button class="filter-chip active" data-status="all" onclick="setOrderStatus('all')">Semua Status</button>
+          <button class="filter-chip" data-status="baru" onclick="setOrderStatus('baru')">🆕 Baru</button>
+          <button class="filter-chip" data-status="diproses" onclick="setOrderStatus('diproses')">⏳ Diproses</button>
+          <button class="filter-chip" data-status="selesai" onclick="setOrderStatus('selesai')">✅ Selesai</button>
+          <button class="filter-chip" data-status="batal" onclick="setOrderStatus('batal')">❌ Batal</button>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Waktu</th>
+              <th>Pembeli</th>
+              <th>Produk</th>
+              <th>Total</th>
+              <th>Bayar</th>
+              <th>Status</th>
+              <th style="width:90px;">Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="ordersTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ TAB REKAP ============ -->
+  <div class="tab-content" id="tab-reports">
+    <div class="admin-container">
+      <div class="filter-group" style="margin-bottom:20px;">
+        <button class="filter-chip active" data-report="today" onclick="setReportPeriod('today')">📅 Hari Ini</button>
+        <button class="filter-chip" data-report="week" onclick="setReportPeriod('week')">📅 7 Hari</button>
+        <button class="filter-chip" data-report="month" onclick="setReportPeriod('month')">📅 30 Hari</button>
+        <button class="filter-chip" data-report="all" onclick="setReportPeriod('all')">📅 Semua</button>
+      </div>
+
+      <div class="stats">
+        <div class="stat-card success">
+          <div class="label">💰 Total Omzet</div>
+          <div class="value" id="reportRevenue">Rp 0</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">📦 Jumlah Order</div>
+          <div class="value" id="reportOrders">0</div>
+        </div>
+        <div class="stat-card info">
+          <div class="label">📊 Rata-rata/Order</div>
+          <div class="value" id="reportAvg">Rp 0</div>
+        </div>
+        <div class="stat-card warning">
+          <div class="label">🧕 Produk Terjual</div>
+          <div class="value" id="reportItems">0</div>
+        </div>
+      </div>
+
+      <h3 style="color:var(--primary-dark);margin:25px 0 15px;font-size:1.1rem;">🏆 Produk Terlaris</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:60px;">Rank</th>
+              <th>Nama Produk</th>
+              <th>Terjual</th>
+              <th>Pendapatan</th>
+            </tr>
+          </thead>
+          <tbody id="topProductsTable"></tbody>
+        </table>
+      </div>
+
+      <h3 style="color:var(--primary-dark);margin:25px 0 15px;font-size:1.1rem;">🧕 Produk Per Kategori</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Kategori</th>
+              <th>Terjual</th>
+              <th>Pendapatan</th>
+            </tr>
+          </thead>
+          <tbody id="categoryReportTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FORM PRODUK MODAL -->
+<div class="form-overlay" id="formOverlay">
+  <div class="form-modal">
+    <div class="form-header">
+      <h2 id="formTitle">Tambah Produk Baru</h2>
+      <button onclick="closeForm()">✕</button>
+    </div>
+    <div class="form-body">
+      <input type="hidden" id="fId">
+
+      <div class="form-group">
+        <label>Nama Produk <span class="req">*</span></label>
+        <input type="text" id="fName" placeholder="Contoh: Pashmina Ceruty Babydoll">
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Kategori <span class="req">*</span></label>
+          <select id="fCategory">
+            <option value="Pashmina">Pashmina</option>
+            <option value="Instant">Instant</option>
+            <option value="Bergo">Bergo</option>
+            <option value="Bella Square">Bella Square</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Bahan</label>
+          <input type="text" id="fMaterial" placeholder="Contoh: Ceruty Babydoll">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Harga Jual (Rp) <span class="req">*</span></label>
+          <input type="number" id="fPrice" placeholder="45000">
+        </div>
+        <div class="form-group">
+          <label>Harga Sebelum Diskon (Rp)</label>
+          <input type="number" id="fOldPrice" placeholder="65000">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Rating (1-5)</label>
+          <input type="number" id="fRating" step="0.1" min="1" max="5" value="4.9">
+        </div>
+        <div class="form-group">
+          <label>Jumlah Terjual</label>
+          <input type="number" id="fSold" placeholder="0" value="0">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Ukuran</label>
+          <input type="text" id="fSize" placeholder="Contoh: 175 x 75 cm">
+        </div>
+        <div class="form-group">
+          <label>Tags (pisahkan dengan koma)</label>
+          <input type="text" id="fTags" placeholder="Best Seller, Adem">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Pilihan Warna <span class="req">*</span></label>
+        <div class="color-inputs" id="colorInputs"></div>
+      </div>
+
+      <div class="form-group">
+        <label>Foto Produk <span class="req">*</span></label>
+        <div class="upload-buttons">
+          <label>
+            📁 Pilih dari Galeri
+            <input type="file" accept="image/*" onchange="handleFileSelect(event)">
+          </label>
+          <label>
+            📷 Ambil dari Kamera
+            <input type="file" accept="image/*" capture="environment" onchange="handleFileSelect(event)">
+          </label>
+        </div>
+        <div class="img-preview-wrap" id="imgPreviewWrap" style="display:none;">
+          <div class="img-preview" id="imgPreview"></div>
+          <button class="remove-img-btn" onclick="removeImage()" title="Hapus foto">✕</button>
+        </div>
+        <input type="hidden" id="fImg">
+      </div>
+
+      <div class="form-group">
+        <label>Deskripsi Produk</label>
+        <textarea id="fDesc" placeholder="Deskripsi lengkap produk..."></textarea>
+      </div>
+    </div>
+    <div class="form-footer">
+      <button class="btn-cancel-form" onclick="closeForm()">Batal</button>
+      <button class="btn-save" onclick="saveProduct()">💾 Simpan Produk</button>
+    </div>
+  </div>
+</div>
+
+<!-- ORDER DETAIL MODAL -->
+<div class="form-overlay" id="orderDetailOverlay">
+  <div class="form-modal" style="max-width:600px;">
+    <div class="form-header">
+      <h2>📋 Detail Order</h2>
+      <button onclick="closeOrderDetail()">✕</button>
+    </div>
+    <div class="form-body" id="orderDetailContent"></div>
+    <div class="form-footer">
+      <button class="btn-cancel-form" onclick="closeOrderDetail()">Tutup</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div class="form-overlay" id="confirmOverlay">
+  <div class="confirm-modal">
+    <div class="icon" id="confirmIcon">⚠️</div>
+    <h3 id="confirmTitle">Hapus?</h3>
+    <p id="confirmMsg">Yakin?</p>
+    <div class="btns">
+      <button class="confirm-no" onclick="closeConfirm()">Batal</button>
+      <button class="confirm-yes" id="confirmYesBtn">Ya, Hapus</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">Berhasil!</div>
+
+<script>
+/* ===== KONFIGURASI ===== */
+const ADMIN_PASSWORD = 'shakira2025';
+
+/* ===== DATA DEFAULT ===== */
+const DEFAULT_PRODUCTS = [
+  { id: 1, name: "Pashmina Ceruty Babydoll", category: "Pashmina", price: 45000, oldPrice: 65000, rating: 4.9, sold: 1250, colors: ["#d6336c", "#f8a5c2", "#2d2d2d", "#8e44ad", "#e8d5b7"], desc: "Pashmina premium berbahan ceruty babydoll yang super lembut.", material: "Ceruty Babydoll", size: "175 x 75 cm", tags: ["Best Seller", "Adem"], img: "https://images.unsplash.com/photo-1610047611205-1f7c3c1f0e0f?w=600&q=80" },
+  { id: 2, name: "Hijab Instant Jersey Premium", category: "Instant", price: 38000, oldPrice: 55000, rating: 4.8, sold: 2100, colors: ["#000", "#d6336c", "#fff", "#6c5ce7", "#00b894"], desc: "Hijab instant berbahan jersey premium yang stretch.", material: "Jersey Premium", size: "All Size", tags: ["Praktis", "Stretch"], img: "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=600&q=80" },
+  { id: 3, name: "Bergo Maryam Diamond", category: "Bergo", price: 52000, oldPrice: 75000, rating: 4.9, sold: 890, colors: ["#1a1a1a", "#d4af37", "#fff", "#e84393", "#0984e3"], desc: "Bergo dengan aksen diamond yang mewah.", material: "Diamond Italiano", size: "All Size", tags: ["Mewah", "Kondangan"], img: "https://images.unsplash.com/photo-1583391733956-6c78276477e2?w=600&q=80" },
+  { id: 4, name: "Bella Square Motif Bunga", category: "Bella Square", price: 42000, oldPrice: 60000, rating: 4.7, sold: 1500, colors: ["#f8a5c2", "#74b9ff", "#dfe6e9", "#fdcb6e", "#a29bfe"], desc: "Bella square dengan motif bunga kekinian.", material: "Voal Motif", size: "115 x 115 cm", tags: ["Motif", "Ringan"], img: "https://images.unsplash.com/photo-1601924994987-69e26d50dc26?w=600&q=80" },
+  { id: 5, name: "Pashmina Plisket Shimmer", category: "Pashmina", price: 58000, oldPrice: 85000, rating: 4.9, sold: 720, colors: ["#d4af37", "#c0c0c0", "#d6336c", "#2d3436", "#e17055"], desc: "Pashmina plisket dengan efek shimmer yang glamor.", material: "Plisket Shimmer", size: "180 x 70 cm", tags: ["Glamor", "Plisket"], img: "https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?w=600&q=80" },
+  { id: 6, name: "Instant Jersey Sport", category: "Instant", price: 35000, oldPrice: 50000, rating: 4.8, sold: 3000, colors: ["#000", "#fff", "#00b894", "#e84393", "#0984e3"], desc: "Hijab instant sport khusus olahraga.", material: "Dry-Fit Jersey", size: "All Size", tags: ["Sport", "Dry-Fit"], img: "https://images.unsplash.com/photo-1518310383802-640c2de311b2?w=600&q=80" },
+  { id: 7, name: "Bergo Anak Cute", category: "Bergo", price: 28000, oldPrice: 40000, rating: 4.9, sold: 1800, colors: ["#ff9ff3", "#feca57", "#48dbfb", "#1dd1a1", "#ff6b6b"], desc: "Bergo khusus anak perempuan.", material: "Katun Lembut", size: "Anak 2-10 th", tags: ["Anak", "Lucu"], img: "https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=600&q=80" },
+  { id: 8, name: "Bella Square Satin Premium", category: "Bella Square", price: 48000, oldPrice: 68000, rating: 4.8, sold: 950, colors: ["#d4af37", "#d6336c", "#000", "#fff", "#6c5ce7"], desc: "Bella square satin premium mewah.", material: "Satin Premium", size: "115 x 115 cm", tags: ["Satin", "Mewah"], img: "https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?w=600&q=80" }
+];
+
+/* ===== STATE ===== */
+let products = [];
+let orders = [];
+let tempColors = [];
+let currentEditId = null;
+let currentImageBase64 = '';
+let unsubscribeProducts = null;
+let unsubscribeOrders = null;
+let orderPeriod = 'all';
+let orderStatusFilter = 'all';
+let reportPeriod = 'today';
+
+/* ===== LOAD PRODUK REALTIME ===== */
+function loadProducts() {
+  document.getElementById('productTable').innerHTML = `
+    <tr class="empty-row"><td colspan="6"><span class="emoji">⏳</span><p>Memuat produk...</p></td></tr>
+  `;
+  updateSyncStatus('connecting');
+
+  productsCollection.limit(1).get().then(snapshot => {
+    if (snapshot.empty) {
+      const batch = db.batch();
+      DEFAULT_PRODUCTS.forEach(p => batch.set(productsCollection.doc(String(p.id)), p));
+      return batch.commit();
+    }
+  }).then(() => {
+    if (unsubscribeProducts) unsubscribeProducts();
+    unsubscribeProducts = productsCollection.orderBy('id').onSnapshot(snapshot => {
+      products = [];
+      snapshot.forEach(doc => products.push({ ...doc.data(), _docId: doc.id }));
+      updateSyncStatus('online');
+      renderTable();
+      updateStats();
+    }, err => {
+      console.error(err);
+      updateSyncStatus('offline');
+      showToast('❌ Gagal sync produk: ' + err.message, 'error');
+    });
+  }).catch(err => {
+    console.error(err);
+    updateSyncStatus('offline');
+    showToast('❌ Koneksi Firebase gagal!', 'error');
+  });
+}
+
+/* ===== LOAD ORDERS REALTIME ===== */
+function loadOrders() {
+  if (unsubscribeOrders) unsubscribeOrders();
+  unsubscribeOrders = ordersCollection.orderBy('createdAt', 'desc').onSnapshot(snapshot => {
+    orders = [];
+    snapshot.forEach(doc => orders.push({ ...doc.data(), _docId: doc.id }));
+    // Sort client-side karena serverTimestamp mungkin null untuk beberapa data
+    orders.sort((a, b) => {
+      const dateA = a.createdAt ? a.createdAt.toDate() : new Date(a.createdAtClient || 0);
+      const dateB = b.createdAt ? b.createdAt.toDate() : new Date(b.createdAtClient || 0);
+      return dateB - dateA;
+    });
+    renderOrders();
+    updateSalesStats();
+    renderReports();
+  }, err => {
+    console.error('Error loading orders:', err);
+  });
+}
+
+/* ===== SYNC STATUS ===== */
+function updateSyncStatus(status) {
+  const dot = document.getElementById('syncDot');
+  const txt = document.getElementById('syncText');
+  dot.classList.remove('online', 'offline');
+  if (status === 'online') { dot.classList.add('online'); txt.textContent = 'Tersinkron'; }
+  else if (status === 'offline') { dot.classList.add('offline'); txt.textContent = 'Offline'; }
+  else { txt.textContent = 'Menghubungkan...'; }
+}
+
+/* ===== TAB SWITCH ===== */
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.querySelector(`.tab-btn[data-tab="${tab}"]`).classList.add('active');
+  document.getElementById(`tab-${tab}`).classList.add('active');
+  
+  if (tab === 'sales') renderOrders();
+  if (tab === 'reports') renderReports();
+}
+
+/* ===== LOGIN/LOGOUT ===== */
+function doLogin() {
+  const pass = document.getElementById('loginPassword').value;
+  const err = document.getElementById('loginError');
+  if (pass === ADMIN_PASSWORD) {
+    sessionStorage.setItem('shakira_admin', 'true');
+    showAdminPanel();
+  } else {
+    err.textContent = '❌ Password salah!';
+    setTimeout(() => err.textContent = '', 2500);
+  }
+}
+
+function logout() {
+  sessionStorage.removeItem('shakira_admin');
+  if (unsubscribeProducts) unsubscribeProducts();
+  if (unsubscribeOrders) unsubscribeOrders();
+  location.reload();
+}
+
+function showAdminPanel() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('adminPanel').classList.add('active');
+  loadProducts();
+  loadOrders();
+}
+
+if (sessionStorage.getItem('shakira_admin') === 'true') showAdminPanel();
+
+/* ===== HELPER ===== */
+function formatRupiah(n) { return 'Rp ' + (n || 0).toLocaleString('id-ID'); }
+
+function formatDate(order) {
+  let d;
+  if (order.createdAt && typeof order.createdAt.toDate === 'function') {
+    d = order.createdAt.toDate();
+  } else if (order.createdAtClient) {
+    d = new Date(order.createdAtClient);
+  } else {
+    return '-';
+  }
+  const pad = n => String(n).padStart(2, '0');
+  return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+function showToast(msg, type = '') {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.className = 'toast show ' + type;
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+function getOrderDate(order) {
+  if (order.createdAt && typeof order.createdAt.toDate === 'function') return order.createdAt.toDate();
+  if (order.createdAtClient) return new Date(order.createdAtClient);
+  return new Date(0);
+}
+
+/* ===== PRODUK ===== */
+function updateStats() {
+  document.getElementById('statTotal').textContent = products.length;
+  document.getElementById('statCat').textContent = new Set(products.map(p => p.category).filter(Boolean)).size;
+  document.getElementById('statDiskon').textContent = products.filter(p => p.oldPrice && p.oldPrice > p.price).length;
+  const avg = products.length ? Math.round(products.reduce((s, p) => s + Number(p.price || 0), 0) / products.length) : 0;
+  document.getElementById('statAvg').textContent = formatRupiah(avg);
+}
+
+function renderTable() {
+  const q = (document.getElementById('searchInput').value || '').toLowerCase();
+  const filtered = products.filter(p =>
+    !q || (p.name || '').toLowerCase().includes(q) || (p.category || '').toLowerCase().includes(q)
+  );
+  const tbody = document.getElementById('productTable');
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="6"><span class="emoji">${q ? '🔍' : '📦'}</span><p>${q ? 'Produk tidak ditemukan' : 'Belum ada produk.'}</p></td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(p => `
+    <tr>
+      <td><div class="table-img" style="background-image:url('${escapeHtml(p.img)}')"></div></td>
+      <td>
+        <div class="table-name">${escapeHtml(p.name)}</div>
+        <div style="font-size:0.75rem;color:var(--muted);">ID: ${p.id} • ⭐ ${p.rating || '-'} • ${p.sold || 0} terjual</div>
+      </td>
+      <td><span class="table-cat">${escapeHtml(p.category)}</span></td>
+      <td>
+        <div class="table-price">${formatRupiah(p.price)}</div>
+        ${p.oldPrice && p.oldPrice > p.price ? `<div class="table-old">${formatRupiah(p.oldPrice)}</div>` : ''}
+      </td>
+      <td>
+        <div style="display:flex;gap:4px;flex-wrap:wrap;">
+          ${(p.colors || []).map(c => `<span style="width:18px;height:18px;background:${escapeHtml(c)};border-radius:50%;display:inline-block;border:1px solid #ddd;"></span>`).join('')}
+        </div>
+      </td>
+      <td>
+        <div class="action-btns">
+          <button class="act-btn btn-edit" title="Edit" onclick="editProduct(${p.id})">✏️</button>
+          <button class="act-btn btn-delete" title="Hapus" onclick="confirmDelete(${p.id})">🗑️</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+/* ===== FORM PRODUK ===== */
+function openForm(productId = null) {
+  currentEditId = productId;
+  const title = document.getElementById('formTitle');
+
+  if (productId === null) {
+    title.textContent = '➕ Tambah Produk Baru';
+    ['fId','fName','fMaterial','fPrice','fOldPrice','fSize','fTags','fImg','fDesc'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('fCategory').value = 'Pashmina';
+    document.getElementById('fRating').value = '4.9';
+    document.getElementById('fSold').value = '0';
+    tempColors = ['#d6336c', '#000', '#fff'];
+    currentImageBase64 = '';
+    renderColorInputs();
+    renderImagePreview();
+  } else {
+    const p = products.find(x => x.id === productId);
+    if (!p) return;
+    title.textContent = '✏️ Edit Produk';
+    document.getElementById('fId').value = p.id;
+    document.getElementById('fName').value = p.name || '';
+    document.getElementById('fCategory').value = p.category || 'Pashmina';
+    document.getElementById('fMaterial').value = p.material || '';
+    document.getElementById('fPrice').value = p.price || '';
+    document.getElementById('fOldPrice').value = p.oldPrice || '';
+    document.getElementById('fRating').value = p.rating || 4.9;
+    document.getElementById('fSold').value = p.sold || 0;
+    document.getElementById('fSize').value = p.size || '';
+    document.getElementById('fTags').value = (p.tags || []).join(', ');
+    document.getElementById('fImg').value = p.img || '';
+    document.getElementById('fDesc').value = p.desc || '';
+    tempColors = [...(p.colors || ['#d6336c'])];
+    currentImageBase64 = p.img || '';
+    renderColorInputs();
+    renderImagePreview();
+  }
+  document.getElementById('formOverlay').classList.add('active');
+}
+
+function closeForm() {
+  document.getElementById('formOverlay').classList.remove('active');
+  currentEditId = null;
+  tempColors = [];
+  currentImageBase64 = '';
+}
+
+/* ===== FOTO ===== */
+function handleFileSelect(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  if (!file.type.startsWith('image/')) { showToast('❌ File harus gambar!', 'error'); return; }
+  if (file.size > 10 * 1024 * 1024) { showToast('❌ Foto terlalu besar!', 'error'); return; }
+  showToast('⏳ Memproses foto...');
+  const reader = new FileReader();
+  reader.onload = e => {
+    compressImage(e.target.result, 600, 0.7, compressed => {
+      currentImageBase64 = compressed;
+      document.getElementById('fImg').value = compressed;
+      renderImagePreview();
+      showToast('✅ Foto diupload!', 'success');
+    });
+  };
+  reader.readAsDataURL(file);
+  event.target.value = '';
+}
+
+function compressImage(dataUrl, maxWidth, quality, callback) {
+  const img = new Image();
+  img.onload = () => {
+    const canvas = document.createElement('canvas');
+    let w = img.width, h = img.height;
+    if (w > maxWidth) { h = Math.round(h * maxWidth / w); w = maxWidth; }
+    canvas.width = w; canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, w, h);
+    ctx.drawImage(img, 0, 0, w, h);
+    let q = quality;
+    let result = canvas.toDataURL('image/jpeg', q);
+    while (result.length > 200 * 1024 && q > 0.3) { q -= 0.1; result = canvas.toDataURL('image/jpeg', q); }
+    callback(result);
+  };
+  img.src = dataUrl;
+}
+
+function renderImagePreview() {
+  const wrap = document.getElementById('imgPreviewWrap');
+  const preview = document.getElementById('imgPreview');
+  if (currentImageBase64) {
+    wrap.style.display = 'block';
+    preview.style.backgroundImage = `url('${currentImageBase64}')`;
+    preview.textContent = '';
+  } else {
+    wrap.style.display = 'none';
+  }
+}
+
+function removeImage() {
+  currentImageBase64 = '';
+  document.getElementById('fImg').value = '';
+  renderImagePreview();
+}
+
+/* ===== COLOR ===== */
+function renderColorInputs() {
+  const wrap = document.getElementById('colorInputs');
+  wrap.innerHTML = tempColors.map((c, i) => `
+    <div class="color-chip-wrap">
+      <input type="color" value="${escapeHtml(c)}" onchange="updateColor(${i}, this.value)">
+      <button class="remove-color" onclick="removeColor(${i})">×</button>
+    </div>
+  `).join('') + `<button class="add-color-btn" onclick="addColor()">+</button>`;
+}
+function addColor() { tempColors.push('#d6336c'); renderColorInputs(); }
+function updateColor(i, v) { tempColors[i] = v; }
+function removeColor(i) { if (tempColors.length <= 1) return; tempColors.splice(i, 1); renderColorInputs(); }
+
+/* ===== SAVE PRODUK ===== */
+function saveProduct() {
+  const name = document.getElementById('fName').value.trim();
+  const category = document.getElementById('fCategory').value;
+  const price = Number(document.getElementById('fPrice').value);
+  const oldPrice = Number(document.getElementById('fOldPrice').value) || 0;
+
+  if (!name) return showToast('❌ Nama produk wajib diisi!', 'error');
+  if (!price || price <= 0) return showToast('❌ Harga jual wajib diisi!', 'error');
+  if (!currentImageBase64) return showToast('❌ Foto produk wajib diupload!', 'error');
+  if (tempColors.length === 0) return showToast('❌ Minimal 1 warna!', 'error');
+
+  const tagsRaw = document.getElementById('fTags').value.trim();
+  const tags = tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(Boolean) : [];
+
+  const data = {
+    name, category, price,
+    oldPrice: oldPrice > price ? oldPrice : (oldPrice || price),
+    rating: Number(document.getElementById('fRating').value) || 4.9,
+    sold: Number(document.getElementById('fSold').value) || 0,
+    material: document.getElementById('fMaterial').value.trim() || '-',
+    size: document.getElementById('fSize').value.trim() || 'All Size',
+    tags, colors: [...tempColors],
+    img: currentImageBase64,
+    desc: document.getElementById('fDesc').value.trim() || 'Produk berkualitas.'
+  };
+
+  const btn = document.querySelector('.btn-save');
+  const orig = btn ? btn.textContent : '';
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Menyimpan...'; }
+
+  let docId;
+  if (currentEditId !== null) {
+    const p = products.find(x => x.id === currentEditId);
+    docId = p && p._docId ? p._docId : String(currentEditId);
+    data.id = currentEditId;
+  } else {
+    const maxId = products.reduce((m, p) => Math.max(m, p.id || 0), 0);
+    data.id = maxId + 1;
+    docId = String(data.id);
+  }
+
+  productsCollection.doc(docId).set(data).then(() => {
+    showToast(currentEditId !== null ? '✅ Produk diperbarui!' : '✅ Produk ditambahkan!', 'success');
+    closeForm();
+  }).catch(err => showToast('❌ Gagal simpan: ' + err.message, 'error'))
+    .finally(() => { if (btn) { btn.disabled = false; btn.textContent = orig; } });
+}
+
+function editProduct(id) { openForm(id); }
+
+/* ===== DELETE PRODUK ===== */
+function confirmDelete(id) {
+  const p = products.find(x => x.id === id);
+  if (!p) return;
+  document.getElementById('confirmIcon').textContent = '⚠️';
+  document.getElementById('confirmTitle').textContent = 'Hapus Produk?';
+  document.getElementById('confirmMsg').innerHTML = `Produk <strong>"${escapeHtml(p.name)}"</strong> akan dihapus permanen.`;
+  document.getElementById('confirmYesBtn').onclick = () => {
+    productsCollection.doc(p._docId || String(p.id)).delete().then(() => {
+      closeConfirm();
+      showToast('🗑️ Produk dihapus!', 'success');
+    }).catch(err => showToast('❌ Gagal hapus: ' + err.message, 'error'));
+  };
+  document.getElementById('confirmOverlay').classList.add('active');
+}
+
+function closeConfirm() { document.getElementById('confirmOverlay').classList.remove('active'); }
+
+/* ===== RESET DEFAULT ===== */
+function resetToDefault() {
+  document.getElementById('confirmIcon').textContent = '🔄';
+  document.getElementById('confirmTitle').textContent = 'Reset ke Default?';
+  document.getElementById('confirmMsg').innerHTML = 'Semua produk akan diganti <strong>8 produk default</strong>.';
+  document.getElementById('confirmYesBtn').onclick = () => {
+    productsCollection.get().then(snap => {
+      const batch = db.batch();
+      snap.forEach(doc => batch.delete(doc.ref));
+      return batch.commit();
+    }).then(() => {
+      const batch = db.batch();
+      DEFAULT_PRODUCTS.forEach(p => batch.set(productsCollection.doc(String(p.id)), p));
+      return batch.commit();
+    }).then(() => {
+      closeConfirm();
+      showToast('🔄 Reset berhasil!', 'success');
+    });
+  };
+  document.getElementById('confirmOverlay').classList.add('active');
+}
+
+/* ==================================================== */
+/* ============== CATATAN PENJUALAN =================== */
+/* ==================================================== */
+
+function setOrderPeriod(period) {
+  orderPeriod = period;
+  document.querySelectorAll('[data-period]').forEach(b => b.classList.remove('active'));
+  document.querySelector(`[data-period="${period}"]`).classList.add('active');
+  renderOrders();
+  updateSalesStats();
+}
+
+function setOrderStatus(status) {
+  orderStatusFilter = status;
+  document.querySelectorAll('[data-status]').forEach(b => b.classList.remove('active'));
+  document.querySelector(`[data-status="${status}"]`).classList.add('active');
+  renderOrders();
+}
+
+function getFilteredOrders() {
+  let filtered = [...orders];
+
+  // Filter period
+  if (orderPeriod !== 'all') {
+    const now = new Date();
+    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    let cutoff;
+    if (orderPeriod === 'today') cutoff = startOfDay;
+    else if (orderPeriod === 'week') cutoff = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    else if (orderPeriod === 'month') cutoff = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+    filtered = filtered.filter(o => getOrderDate(o) >= cutoff);
+  }
+
+  // Filter status
+  if (orderStatusFilter !== 'all') {
+    filtered = filtered.filter(o => (o.status || 'baru') === orderStatusFilter);
+  }
+
+  // Filter search
+  const q = (document.getElementById('orderSearchInput').value || '').toLowerCase();
+  if (q) {
+    filtered = filtered.filter(o => 
+      (o.customer?.name || '').toLowerCase().includes(q) ||
+      (o.customer?.phone || '').includes(q)
+    );
+  }
+
+  return filtered;
+}
+
+function updateSalesStats() {
+  const filtered = getFilteredOrders();
+  const totalRevenue = filtered.reduce((sum, o) => sum + (o.total || 0), 0);
+  const totalOrders = filtered.length;
+  const newOrders = filtered.filter(o => (o.status || 'baru') === 'baru').length;
+  const processingOrders = filtered.filter(o => o.status === 'diproses').length;
+
+  document.getElementById('salesTotalRevenue').textContent = formatRupiah(totalRevenue);
+  document.getElementById('salesTotalOrders').textContent = totalOrders;
+  document.getElementById('salesNewOrders').textContent = newOrders;
+  document.getElementById('salesProcessingOrders').textContent = processingOrders;
+
+  const periodText = { all: 'Semua waktu', today: 'Hari ini', week: '7 hari terakhir', month: '30 hari terakhir' };
+  document.getElementById('salesTotalRevenueSub').textContent = periodText[orderPeriod] || 'Semua waktu';
+}
+
+function renderOrders() {
+  const filtered = getFilteredOrders();
+  const tbody = document.getElementById('ordersTable');
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="7"><span class="emoji">📭</span><p>Belum ada order</p></td></tr>`;
+    updateSalesStats();
+    return;
+  }
+
+  tbody.innerHTML = filtered.map((o, idx) => {
+    const totalItems = (o.items || []).reduce((s, i) => s + (i.qty || 0), 0);
+    const payClass = o.paymentMethod === 'QRIS' ? 'qris' : 'wa';
+    const statusClass = 'status-' + (o.status || 'baru');
+    const statusLabel = { baru: '🆕 Baru', diproses: '⏳ Diproses', selesai: '✅ Selesai', batal: '❌ Batal' };
+
+    return `
+      <tr>
+        <td>
+          <div style="font-weight:600;font-size:0.82rem;">${formatDate(o)}</div>
+        </td>
+        <td>
+          <div class="table-name">${escapeHtml(o.customer?.name || '-')}</div>
+          <div style="font-size:0.75rem;color:var(--muted);">📱 ${escapeHtml(o.customer?.phone || '-')}</div>
+        </td>
+        <td>
+          <div style="font-size:0.85rem;">${totalItems} item</div>
+          <div style="font-size:0.75rem;color:var(--muted);">${(o.items || []).length} produk</div>
+        </td>
+        <td><div class="table-price">${formatRupiah(o.total)}</div></td>
+        <td><span class="payment-tag ${payClass}">${escapeHtml(o.paymentMethod || '-')}</span></td>
+        <td>
+          <select class="status-select" onchange="updateOrderStatus('${o._docId}', this.value)">
+            <option value="baru" ${(o.status || 'baru') === 'baru' ? 'selected' : ''}>🆕 Baru</option>
+            <option value="diproses" ${o.status === 'diproses' ? 'selected' : ''}>⏳ Diproses</option>
+            <option value="selesai" ${o.status === 'selesai' ? 'selected' : ''}>✅ Selesai</option>
+            <option value="batal" ${o.status === 'batal' ? 'selected' : ''}>❌ Batal</option>
+          </select>
+        </td>
+        <td>
+          <div class="action-btns">
+            <button class="act-btn btn-view-order" title="Detail" onclick="viewOrderDetail('${o._docId}')">👁️</button>
+            <button class="act-btn btn-delete" title="Hapus" onclick="confirmDeleteOrder('${o._docId}')">🗑️</button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+
+  updateSalesStats();
+}
+
+function updateOrderStatus(docId, newStatus) {
+  ordersCollection.doc(docId).update({ status: newStatus })
+    .then(() => showToast('✅ Status diperbarui!', 'success'))
+    .catch(err => showToast('❌ Gagal update: ' + err.message, 'error'));
+}
+
+function viewOrderDetail(docId) {
+  const o = orders.find(x => x._docId === docId);
+  if (!o) return;
+
+  const items = (o.items || []).map(i => `
+    <div class="order-item-row">
+      <div>
+        <strong>${escapeHtml(i.name)}</strong><br>
+        <small style="color:var(--muted);">Warna: <span style="display:inline-block;width:12px;height:12px;background:${escapeHtml(i.color)};border-radius:50%;vertical-align:middle;border:1px solid #ddd;"></span> × ${i.qty}</small>
+      </div>
+      <div style="text-align:right;">
+        <strong>${formatRupiah(i.subtotal || (i.price * i.qty))}</strong><br>
+        <small style="color:var(--muted);">${formatRupiah(i.price)} × ${i.qty}</small>
+      </div>
+    </div>
+  `).join('');
+
+  document.getElementById('orderDetailContent').innerHTML = `
+    <div style="margin-bottom:16px;">
+      <div class="order-detail-row"><span>📅 Waktu</span><strong>${formatDate(o)}</strong></div>
+      <div class="order-detail-row"><span>👤 Nama Pembeli</span><strong>${escapeHtml(o.customer?.name || '-')}</strong></div>
+      <div class="order-detail-row"><span>📱 No. WhatsApp</span><strong>${escapeHtml(o.customer?.phone || '-')}</strong></div>
+      <div class="order-detail-row"><span>💳 Metode Bayar</span><strong>${escapeHtml(o.paymentMethod || '-')}</strong></div>
+      <div class="order-detail-row"><span>📊 Status</span><strong>${o.status || 'baru'}</strong></div>
+    </div>
+    <h4 style="color:var(--primary-dark);margin-bottom:10px;font-size:0.9rem;">🛍️ Detail Produk</h4>
+    <div class="order-items">${items}</div>
+    <div class="order-detail-row" style="margin-top:12px;font-size:1.05rem;">
+      <span><strong>TOTAL</strong></span>
+      <strong style="color:var(--primary);font-size:1.2rem;">${formatRupiah(o.total)}</strong>
+    </div>
+    <div style="margin-top:16px;text-align:right;">
+      <a href="https://wa.me/${(o.customer?.phone || '').replace(/^0/, '62')}?text=Halo%20${encodeURIComponent(o.customer?.name || '')}%2C%20pesanan%20Anda%20sedang%20diproses" 
+         target="_blank" 
+         style="display:inline-block;background:#25D366;color:white;padding:10px 20px;border-radius:10px;text-decoration:none;font-weight:700;font-size:0.85rem;">
+        💬 Chat Pembeli
+      </a>
+    </div>
+  `;
+  document.getElementById('orderDetailOverlay').classList.add('active');
+}
+
+function closeOrderDetail() {
+  document.getElementById('orderDetailOverlay').classList.remove('active');
+}
+
+function confirmDeleteOrder(docId) {
+  const o = orders.find(x => x._docId === docId);
+  if (!o) return;
+  document.getElementById('confirmIcon').textContent = '🗑️';
+  document.getElementById('confirmTitle').textContent = 'Hapus Order?';
+  document.getElementById('confirmMsg').innerHTML = `Order dari <strong>"${escapeHtml(o.customer?.name || '-')}"</strong> akan dihapus permanen.`;
+  document.getElementById('confirmYesBtn').onclick = () => {
+    ordersCollection.doc(docId).delete().then(() => {
+      closeConfirm();
+      showToast('🗑️ Order dihapus!', 'success');
+    }).catch(err => showToast('❌ Gagal hapus: ' + err.message, 'error'));
+  };
+  document.getElementById('confirmOverlay').classList.add('active');
+}
+
+/* ==================================================== */
+/* ============== REKAP PENJUALAN ===================== */
+/* ==================================================== */
+
+function setReportPeriod(period) {
+  reportPeriod = period;
+  document.querySelectorAll('[data-report]').forEach(b => b.classList.remove('active'));
+  document.querySelector(`[data-report="${period}"]`).classList.add('active');
+  renderReports();
+}
+
+function getReportOrders() {
+  let filtered = [...orders];
+  if (reportPeriod !== 'all') {
+    const now = new Date();
+    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    let cutoff;
+    if (reportPeriod === 'today') cutoff = startOfDay;
+    else if (reportPeriod === 'week') cutoff = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    else if (reportPeriod === 'month') cutoff = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+    filtered = filtered.filter(o => getOrderDate(o) >= cutoff);
+  }
+  // Hanya hitung yang bukan batal
+  return filtered.filter(o => o.status !== 'batal');
+}
+
+function renderReports() {
+  const filtered = getReportOrders();
+
+  const totalRevenue = filtered.reduce((sum, o) => sum + (o.total || 0), 0);
+  const totalOrders = filtered.length;
+  const avgOrder = totalOrders > 0 ? Math.round(totalRevenue / totalOrders) : 0;
+  const totalItems = filtered.reduce((sum, o) => sum + (o.items || []).reduce((s, i) => s + (i.qty || 0), 0), 0);
+
+  document.getElementById('reportRevenue').textContent = formatRupiah(totalRevenue);
+  document.getElementById('reportOrders').textContent = totalOrders;
+  document.getElementById('reportAvg').textContent = formatRupiah(avgOrder);
+  document.getElementById('reportItems').textContent = totalItems;
+
+  // Aggregate produk terlaris
+  const productMap = {};
+  const categoryMap = {};
+
+  filtered.forEach(o => {
+    (o.items || []).forEach(item => {
+      const key = item.name;
+      if (!productMap[key]) productMap[key] = { name: item.name, qty: 0, revenue: 0 };
+      productMap[key].qty += item.qty || 0;
+      productMap[key].revenue += item.subtotal || (item.price * item.qty) || 0;
+
+      // Cari kategori dari products
+      const prod = products.find(p => p.id === item.id);
+      const cat = prod ? prod.category : 'Lainnya';
+      if (!categoryMap[cat]) categoryMap[cat] = { qty: 0, revenue: 0 };
+      categoryMap[cat].qty += item.qty || 0;
+      categoryMap[cat].revenue += item.subtotal || (item.price * item.qty) || 0;
+    });
+  });
+
+  // Top products
+  const topProducts = Object.values(productMap).sort((a, b) => b.qty - a.qty).slice(0, 10);
+  const topTable = document.getElementById('topProductsTable');
+  if (topProducts.length === 0) {
+    topTable.innerHTML = `<tr class="empty-row"><td colspan="4"><span class="emoji">📊</span><p>Belum ada data penjualan</p></td></tr>`;
+  } else {
+    topTable.innerHTML = topProducts.map((p, i) => `
+      <tr>
+        <td>
+          <span style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:${i === 0 ? '#fdcb6e' : i === 1 ? '#dfe6e9' : i === 2 ? '#e17055' : '#f0f0f0'};color:${i < 3 ? 'white' : 'var(--muted)'};font-weight:800;font-size:0.8rem;">
+            ${i + 1}
+          </span>
+        </td>
+        <td><div class="table-name">${escapeHtml(p.name)}</div></td>
+        <td><strong style="color:var(--primary);">${p.qty} pcs</strong></td>
+        <td><strong>${formatRupiah(p.revenue)}</strong></td>
+      </tr>
+    `).join('');
+  }
+
+  // Category report
+  const categories = Object.entries(categoryMap).sort((a, b) => b[1].qty - a[1].qty);
+  const catTable = document.getElementById('categoryReportTable');
+  if (categories.length === 0) {
+    catTable.innerHTML = `<tr class="empty-row"><td colspan="3"><span class="emoji">🏷️</span><p>Belum ada data</p></td></tr>`;
+  } else {
+    catTable.innerHTML = categories.map(([cat, data]) => `
+      <tr>
+        <td><span class="table-cat">${escapeHtml(cat)}</span></td>
+        <td><strong style="color:var(--primary);">${data.qty} pcs</strong></td>
+        <td><strong>${formatRupiah(data.revenue)}</strong></td>
+      </tr>
+    `).join('');
+  }
+}
+
+/* ===== CLOSE OVERLAY ===== */
+document.getElementById('formOverlay').addEventListener('click', e => {
+  if (e.target.id === 'formOverlay') closeForm();
+});
+document.getElementById('confirmOverlay').addEventListener('click', e => {
+  if (e.target.id === 'confirmOverlay') closeConfirm();
+});
+document.getElementById('orderDetailOverlay').addEventListener('click', e => {
+  if (e.target.id === 'orderDetailOverlay') closeOrderDetail();
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closeForm(); closeConfirm(); closeOrderDetail(); }
+});
+</script>
+
+</body>
+  </html>
