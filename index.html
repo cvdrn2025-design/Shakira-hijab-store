@@ -29,34 +29,36 @@
   }
   .header-banner {
     width: 100%;
-    height: 180px;
+    height: auto;
+    min-height: 120px;
+    max-height: 260px;
     background-image: url('header-hijab.png');
-    background-size: cover;
+    background-size: 100% 100%;
     background-position: center;
     background-repeat: no-repeat;
     background-color: #a61e4d;
     position: relative;
+    aspect-ratio: 1920 / 400;
   }
   .header-banner::after {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(to bottom, rgba(166,30,77,0.1), rgba(166,30,77,0.5));
+    background: linear-gradient(to bottom, rgba(166,30,77,0.05), rgba(166,30,77,0.35));
     pointer-events: none;
   }
   .nav {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    max-width: 1200px;
-    margin: 0 auto;
     gap: 10px;
-    padding: 12px 5%;
+    padding: 12px 4%;
     position: relative;
     z-index: 2;
-    background: rgba(166,30,77,0.9);
+    background: rgba(166,30,77,0.92);
     backdrop-filter: blur(6px);
     color: white;
+    flex-wrap: wrap;
   }
   .logo {
     font-size: 1.4rem;
@@ -65,23 +67,11 @@
     align-items: center;
     gap: 8px;
     color: white;
+    flex-shrink: 0;
   }
   .logo span { color: #ffe0ec; font-weight: 400; font-size: 0.8rem; display: block; }
-  .nav-actions { display: flex; gap: 8px; align-items: center; }
-  .admin-link {
-    background: rgba(255,255,255,0.15);
-    color: white;
-    text-decoration: none;
-    padding: 10px 16px;
-    border-radius: 30px;
-    font-weight: 600;
-    font-size: 0.85rem;
-    transition: 0.3s;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-  }
-  .admin-link:hover { background: white; color: var(--primary); }
+  .nav-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
   .cart-btn {
     background: white;
     color: var(--primary);
@@ -94,16 +84,208 @@
     align-items: center;
     gap: 8px;
     transition: 0.3s;
+    font-size: 0.9rem;
   }
   .cart-btn:hover { transform: scale(1.05); background: #ffe0ec; }
   .cart-count {
     background: var(--primary);
     color: white;
     border-radius: 50%;
-    width: 22px; height: 22px;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 6px;
     display: flex; align-items: center; justify-content: center;
     font-size: 0.75rem;
+    font-weight: 800;
   }
+
+  /* ===== USER AVATAR / LOGIN BUTTON ===== */
+  .login-btn {
+    background: rgba(255,255,255,0.2);
+    color: white;
+    border: 2px solid rgba(255,255,255,0.35);
+    padding: 9px 18px;
+    border-radius: 30px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 0.88rem;
+    transition: 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+  }
+  .login-btn:hover {
+    background: white;
+    color: var(--primary);
+    border-color: white;
+  }
+
+  .user-chip {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.15);
+    border: 2px solid rgba(255,255,255,0.35);
+    padding: 5px 14px 5px 5px;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: 0.3s;
+    color: white;
+    font-weight: 700;
+    font-size: 0.88rem;
+    white-space: nowrap;
+  }
+  .user-chip:hover { background: rgba(255,255,255,0.3); }
+  .user-chip.active { display: flex; }
+  .user-avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #f8a5c2, #d6336c);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 0.85rem;
+    color: white;
+    border: 2px solid white;
+    flex-shrink: 0;
+    text-transform: uppercase;
+  }
+  .user-name { max-width: 110px; overflow: hidden; text-overflow: ellipsis; }
+
+  /* ===== LOGIN MODAL ===== */
+  .login-modal-box {
+    background: white;
+    border-radius: 22px;
+    max-width: 420px;
+    width: 100%;
+    padding: 34px 28px;
+    text-align: center;
+    animation: popIn 0.3s ease;
+    position: relative;
+    max-height: 92vh;
+    overflow-y: auto;
+  }
+  .login-modal-box .icon-top {
+    font-size: 3rem;
+    margin-bottom: 8px;
+  }
+  .login-modal-box h2 {
+    color: var(--primary-dark);
+    font-size: 1.4rem;
+    margin-bottom: 6px;
+  }
+  .login-modal-box .subtitle {
+    color: var(--muted);
+    font-size: 0.85rem;
+    margin-bottom: 22px;
+  }
+  .login-modal-box input {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid #f0d0dd;
+    border-radius: 12px;
+    font-size: 1rem;
+    outline: none;
+    margin-bottom: 12px;
+    transition: 0.3s;
+    font-family: inherit;
+  }
+  .login-modal-box input:focus {
+    border-color: var(--primary);
+    background: #fff;
+  }
+  .btn-login-submit {
+    width: 100%;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white;
+    border: none;
+    padding: 14px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: 0.3s;
+    margin-top: 8px;
+  }
+  .btn-login-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(214,51,108,0.35);
+  }
+  .login-terms {
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-top: 14px;
+    line-height: 1.5;
+  }
+
+  /* User Menu Dropdown */
+  .user-menu-box {
+    background: white;
+    border-radius: 18px;
+    max-width: 320px;
+    width: 100%;
+    padding: 0;
+    animation: popIn 0.3s ease;
+    overflow: hidden;
+    position: relative;
+  }
+  .user-menu-header {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white;
+    padding: 24px 22px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .user-menu-header .big-avatar {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: white;
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 1.5rem;
+    border: 3px solid rgba(255,255,255,0.5);
+    text-transform: uppercase;
+    flex-shrink: 0;
+  }
+  .user-menu-header h3 {
+    font-size: 1.05rem;
+    font-weight: 800;
+    margin-bottom: 2px;
+  }
+  .user-menu-header small {
+    font-size: 0.78rem;
+    opacity: 0.85;
+    display: block;
+    word-break: break-all;
+  }
+  .user-menu-body { padding: 10px; }
+  .user-menu-item {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    border: none;
+    background: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--text);
+    text-align: left;
+    transition: 0.2s;
+    font-family: inherit;
+  }
+  .user-menu-item:hover { background: #fdf2f6; color: var(--primary-dark); }
+  .user-menu-item .ico { font-size: 1.15rem; width: 24px; text-align: center; }
+  .user-menu-item.danger { color: var(--danger); }
+  .user-menu-item.danger:hover { background: #ffe0e3; color: var(--danger); }
 
   /* ===== HERO ===== */
   .hero {
@@ -128,6 +310,20 @@
     position: relative;
   }
   .hero h1 span { color: var(--primary); }
+  .hero .greeting {
+    display: none;
+    color: var(--primary-dark);
+    font-weight: 700;
+    background: white;
+    padding: 8px 20px;
+    border-radius: 30px;
+    font-size: 0.9rem;
+    margin: 0 auto 15px;
+    width: fit-content;
+    position: relative;
+    box-shadow: 0 4px 12px rgba(214,51,108,0.15);
+  }
+  .hero .greeting.active { display: block; }
   .hero p {
     color: #7a3b52;
     font-size: 1.05rem;
@@ -279,7 +475,6 @@
   }
   .btn-view:hover { opacity: 0.9; }
 
-  /* Empty state */
   .empty-state {
     grid-column: 1 / -1;
     text-align: center;
@@ -287,11 +482,7 @@
     color: var(--muted);
   }
   .empty-state .emoji { font-size: 4rem; display: block; margin-bottom: 15px; }
-  .empty-state a {
-    color: var(--primary);
-    font-weight: 700;
-    text-decoration: none;
-  }
+  .empty-state a { color: var(--primary); font-weight: 700; text-decoration: none; }
 
   /* ===== MODAL ===== */
   .modal-overlay {
@@ -541,7 +732,6 @@
     color: var(--primary-dark);
   }
 
-  /* ===== PAYMENT OPTIONS ===== */
   .payment-options {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -684,17 +874,20 @@
   @media (max-width: 768px) {
     .modal { grid-template-columns: 1fr; }
     .modal-img { min-height: 260px; }
-    .logo { font-size: 1.2rem; }
+    .logo { font-size: 1.1rem; }
     .logo span { display: none; }
     .grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; }
     .card-img { height: 190px; }
     .card-body { padding: 12px; }
     .hero { padding: 40px 5% 50px; }
-    .admin-link span { display: none; }
-    .header-banner { height: 120px; }
+    .header-banner { min-height: 80px; }
+    .user-name { max-width: 70px; }
+    .cart-btn span:not(.cart-count) { display: none; }
+    .login-btn span:not(.ico) { display: none; }
   }
   @media (max-width: 400px) {
     .grid { grid-template-columns: 1fr 1fr; }
+    .header-banner { min-height: 60px; }
   }
 </style>
 </head>
@@ -708,7 +901,17 @@
       🧕 Shakira <span>Hijab Store</span>
     </div>
     <div class="nav-actions">
-      <a href="admin.html" class="admin-link" title="Panel Admin">⚙️ <span>Admin</span></a>
+      <!-- Tombol Login (tampil jika belum login) -->
+      <button class="login-btn" id="loginBtn" onclick="openLoginModal()">
+        <span class="ico">👤</span> <span>Masuk</span>
+      </button>
+      
+      <!-- User Chip dengan avatar (tampil setelah login) -->
+      <button class="user-chip" id="userChip" onclick="openUserMenu()">
+        <span class="user-avatar" id="userAvatar">S</span>
+        <span class="user-name" id="userNameChip">Hi, Kak</span>
+      </button>
+      
       <button class="cart-btn" onclick="openCart()">
         🛒 <span>Keranjang</span>
         <span class="cart-count" id="cartCount">0</span>
@@ -719,6 +922,7 @@
 
 <!-- HERO -->
 <section class="hero">
+  <div class="greeting" id="heroGreeting"></div>
   <h1>Tampil <span>Kekinian</span> dengan Hijab Pilihan</h1>
   <p>Koleksi hijab, kerudung, dan pashmina premium dengan bahan adem, motif trendy, dan harga bersahabat. Cocok untuk daily, kerja, dan acara spesial.</p>
   <div class="badge-row">
@@ -733,17 +937,56 @@
 <div class="container">
   <h2 class="section-title">Koleksi Terbaru</h2>
   <p class="section-sub">Pilih gaya favoritmu, klik produk untuk melihat detail</p>
-
   <div class="filters" id="filters">
     <button class="filter-btn active" data-filter="all">Semua</button>
   </div>
-
   <div class="grid" id="productGrid"></div>
 </div>
 
 <!-- MODAL PREVIEW PRODUK -->
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal" id="modalContent"></div>
+</div>
+
+<!-- LOGIN MODAL -->
+<div class="modal-overlay" id="loginOverlay">
+  <div class="login-modal-box">
+    <button class="close-btn" onclick="closeLoginModal()">✕</button>
+    <div class="icon-top">🧕</div>
+    <h2>Selamat Datang!</h2>
+    <p class="subtitle">Isi data untuk pengalaman belanja yang lebih personal</p>
+    
+    <input type="text" id="loginName" placeholder="Nama lengkap kamu" maxlength="40">
+    <input type="tel" id="loginPhone" placeholder="Nomor WhatsApp (08xx)" maxlength="20" inputmode="numeric">
+    
+    <button class="btn-login-submit" onclick="submitLogin()">✨ Masuk Sekarang</button>
+    
+    <p class="login-terms">Dengan masuk, kamu setuju data digunakan untuk mempermudah proses pemesanan.</p>
+  </div>
+</div>
+
+<!-- USER MENU MODAL -->
+<div class="modal-overlay" id="userMenuOverlay">
+  <div class="user-menu-box">
+    <div class="user-menu-header">
+      <div class="big-avatar" id="menuAvatar">S</div>
+      <div style="flex:1;min-width:0;">
+        <h3 id="menuName">Nama Pengunjung</h3>
+        <small id="menuPhone">08xx-xxxx-xxxx</small>
+      </div>
+    </div>
+    <div class="user-menu-body">
+      <button class="user-menu-item" onclick="openCart(); closeUserMenu();">
+        <span class="ico">🛒</span> Keranjang Saya
+      </button>
+      <button class="user-menu-item" onclick="contactWA(); closeUserMenu();">
+        <span class="ico">💬</span> Hubungi Toko
+      </button>
+      <button class="user-menu-item danger" onclick="logoutUser()">
+        <span class="ico">🚪</span> Keluar
+      </button>
+    </div>
+  </div>
 </div>
 
 <!-- QRIS MODAL -->
@@ -812,7 +1055,7 @@
 
 <script>
 /* ===== KONFIGURASI ===== */
-const WA_NUMBER = '6285782186348'; // 085782186348
+const WA_NUMBER = '6285782186348';
 
 /* ===== DATA PRODUK DEFAULT ===== */
 const DEFAULT_PRODUCTS = [
@@ -820,7 +1063,7 @@ const DEFAULT_PRODUCTS = [
     id: 1, name: "Pashmina Ceruty Babydoll", category: "Pashmina",
     price: 45000, oldPrice: 65000, rating: 4.9, sold: 1250,
     colors: ["#d6336c", "#f8a5c2", "#2d2d2d", "#8e44ad", "#e8d5b7"],
-    desc: "Pashmina premium berbahan ceruty babydoll yang super lembut, jatuh, dan tidak mudah kusut. Cocok untuk daily maupun acara formal.",
+    desc: "Pashmina premium berbahan ceruty babydoll yang super lembut, jatuh, dan tidak mudah kusut.",
     material: "Ceruty Babydoll", size: "175 x 75 cm", tags: ["Best Seller", "Adem"],
     img: "https://images.unsplash.com/photo-1610047611205-1f7c3c1f0e0f?w=600&q=80"
   },
@@ -828,7 +1071,7 @@ const DEFAULT_PRODUCTS = [
     id: 2, name: "Hijab Instant Jersey Premium", category: "Instant",
     price: 38000, oldPrice: 55000, rating: 4.8, sold: 2100,
     colors: ["#000", "#d6336c", "#fff", "#6c5ce7", "#00b894"],
-    desc: "Hijab instant berbahan jersey premium yang stretch, adem, dan tidak perlu dijahit. Praktis dipakai dalam 5 detik!",
+    desc: "Hijab instant berbahan jersey premium yang stretch, adem, dan tidak perlu dijahit.",
     material: "Jersey Premium", size: "All Size", tags: ["Praktis", "Stretch"],
     img: "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=600&q=80"
   },
@@ -836,7 +1079,7 @@ const DEFAULT_PRODUCTS = [
     id: 3, name: "Bergo Maryam Diamond", category: "Bergo",
     price: 52000, oldPrice: 75000, rating: 4.9, sold: 890,
     colors: ["#1a1a1a", "#d4af37", "#fff", "#e84393", "#0984e3"],
-    desc: "Bergo dengan aksen diamond yang mewah dan elegan. Bahan diamond italiano yang berkilau, cocok untuk acara pesta dan kondangan.",
+    desc: "Bergo dengan aksen diamond yang mewah dan elegan.",
     material: "Diamond Italiano", size: "All Size", tags: ["Mewah", "Kondangan"],
     img: "https://images.unsplash.com/photo-1583391733956-6c78276477e2?w=600&q=80"
   },
@@ -844,7 +1087,7 @@ const DEFAULT_PRODUCTS = [
     id: 4, name: "Bella Square Motif Bunga", category: "Bella Square",
     price: 42000, oldPrice: 60000, rating: 4.7, sold: 1500,
     colors: ["#f8a5c2", "#74b9ff", "#dfe6e9", "#fdcb6e", "#a29bfe"],
-    desc: "Bella square dengan motif bunga kekinian. Bahan voal yang ringan dan tidak transparan, nyaman dipakai seharian.",
+    desc: "Bella square dengan motif bunga kekinian. Bahan voal yang ringan.",
     material: "Voal Motif", size: "115 x 115 cm", tags: ["Motif", "Ringan"],
     img: "https://images.unsplash.com/photo-1601924994987-69e26d50dc26?w=600&q=80"
   },
@@ -852,7 +1095,7 @@ const DEFAULT_PRODUCTS = [
     id: 5, name: "Pashmina Plisket Shimmer", category: "Pashmina",
     price: 58000, oldPrice: 85000, rating: 4.9, sold: 720,
     colors: ["#d4af37", "#c0c0c0", "#d6336c", "#2d3436", "#e17055"],
-    desc: "Pashmina plisket dengan efek shimmer yang glamor. Tekstur lipit rapi, jatuh sempurna, bikin tampilan makin elegan.",
+    desc: "Pashmina plisket dengan efek shimmer yang glamor.",
     material: "Plisket Shimmer", size: "180 x 70 cm", tags: ["Glamor", "Plisket"],
     img: "https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?w=600&q=80"
   },
@@ -860,7 +1103,7 @@ const DEFAULT_PRODUCTS = [
     id: 6, name: "Instant Jersey Sport", category: "Instant",
     price: 35000, oldPrice: 50000, rating: 4.8, sold: 3000,
     colors: ["#000", "#fff", "#00b894", "#e84393", "#0984e3"],
-    desc: "Hijab instant sport khusus untuk olahraga. Bahan dry-fit yang menyerap keringat dan cepat kering. Nyaman untuk gym & lari.",
+    desc: "Hijab instant sport khusus untuk olahraga. Bahan dry-fit.",
     material: "Dry-Fit Jersey", size: "All Size", tags: ["Sport", "Dry-Fit"],
     img: "https://images.unsplash.com/photo-1518310383802-640c2de311b2?w=600&q=80"
   },
@@ -868,7 +1111,7 @@ const DEFAULT_PRODUCTS = [
     id: 7, name: "Bergo Anak Cute", category: "Bergo",
     price: 28000, oldPrice: 40000, rating: 4.9, sold: 1800,
     colors: ["#ff9ff3", "#feca57", "#48dbfb", "#1dd1a1", "#ff6b6b"],
-    desc: "Bergo khusus untuk anak perempuan. Bahan katun lembut, tidak panas, dan desain lucu dengan berbagai warna ceria.",
+    desc: "Bergo khusus untuk anak perempuan. Bahan katun lembut.",
     material: "Katun Lembut", size: "Anak 2-10 th", tags: ["Anak", "Lucu"],
     img: "https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=600&q=80"
   },
@@ -876,13 +1119,13 @@ const DEFAULT_PRODUCTS = [
     id: 8, name: "Bella Square Satin Premium", category: "Bella Square",
     price: 48000, oldPrice: 68000, rating: 4.8, sold: 950,
     colors: ["#d4af37", "#d6336c", "#000", "#fff", "#6c5ce7"],
-    desc: "Bella square satin premium yang mengkilap dan mewah. Jatuh sempurna, tidak licin, dan nyaman dipakai untuk acara formal.",
+    desc: "Bella square satin premium yang mengkilap dan mewah.",
     material: "Satin Premium", size: "115 x 115 cm", tags: ["Satin", "Mewah"],
     img: "https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?w=600&q=80"
   }
 ];
 
-/* ===== AMBIL PRODUK DARI LOCALSTORAGE (hasil edit admin) ===== */
+/* ===== AMBIL PRODUK DARI LOCALSTORAGE ===== */
 let products = [];
 (function initProducts() {
   const stored = localStorage.getItem('shakira_products');
@@ -906,6 +1149,9 @@ let currentProduct = null;
 let selectedColor = null;
 let selectedQty = 1;
 
+/* ===== USER / PENGUNJUNG ===== */
+let currentUser = JSON.parse(localStorage.getItem('shakira_user') || 'null');
+
 /* ===== HELPER ===== */
 function formatRupiah(n) {
   return 'Rp ' + (n || 0).toLocaleString('id-ID');
@@ -914,12 +1160,118 @@ function formatRupiah(n) {
 function escapeHtml(str) {
   if (!str) return '';
   return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
+
+function getInitial(name) {
+  if (!name) return '?';
+  return name.trim().charAt(0).toUpperCase();
+}
+
+function firstName(name) {
+  if (!name) return 'Kak';
+  return name.trim().split(' ')[0];
+}
+
+/* ===== LOGIN / USER ===== */
+function openLoginModal() {
+  document.getElementById('loginName').value = '';
+  document.getElementById('loginPhone').value = '';
+  document.getElementById('loginOverlay').classList.add('active');
+  setTimeout(() => document.getElementById('loginName').focus(), 200);
+}
+
+function closeLoginModal() {
+  document.getElementById('loginOverlay').classList.remove('active');
+}
+
+function submitLogin() {
+  const name = document.getElementById('loginName').value.trim();
+  const phone = document.getElementById('loginPhone').value.trim().replace(/\D/g, '');
+
+  if (!name) return showToast('❌ Nama wajib diisi!', 'error');
+  if (!phone || phone.length < 10) return showToast('❌ Nomor WA tidak valid!', 'error');
+
+  currentUser = { name, phone };
+  localStorage.setItem('shakira_user', JSON.stringify(currentUser));
+  closeLoginModal();
+  updateUserUI();
+  showToast('✅ Selamat datang, ' + firstName(name) + '!', 'success');
+}
+
+function logoutUser() {
+  currentUser = null;
+  localStorage.removeItem('shakira_user');
+  closeUserMenu();
+  updateUserUI();
+  showToast('👋 Anda telah keluar');
+}
+
+function updateUserUI() {
+  const loginBtn = document.getElementById('loginBtn');
+  const userChip = document.getElementById('userChip');
+  const userAvatar = document.getElementById('userAvatar');
+  const userNameChip = document.getElementById('userNameChip');
+  const heroGreeting = document.getElementById('heroGreeting');
+
+  if (currentUser) {
+    loginBtn.style.display = 'none';
+    userChip.classList.add('active');
+    userAvatar.textContent = getInitial(currentUser.name);
+    userNameChip.textContent = 'Hi, Kak ' + firstName(currentUser.name);
+    heroGreeting.innerHTML = '👋 Hai, <strong>' + escapeHtml(firstName(currentUser.name)) + '</strong>! Selamat belanja di Shakira Hijab Store';
+    heroGreeting.classList.add('active');
+  } else {
+    loginBtn.style.display = 'flex';
+    userChip.classList.remove('active');
+    heroGreeting.classList.remove('active');
+    heroGreeting.innerHTML = '';
+  }
+}
+
+function openUserMenu() {
+  if (!currentUser) return;
+  document.getElementById('menuAvatar').textContent = getInitial(currentUser.name);
+  document.getElementById('menuName').textContent = 'Hi, Kak ' + currentUser.name;
+  document.getElementById('menuPhone').textContent = formatPhone(currentUser.phone);
+  document.getElementById('userMenuOverlay').classList.add('active');
+}
+
+function closeUserMenu() {
+  document.getElementById('userMenuOverlay').classList.remove('active');
+}
+
+function formatPhone(p) {
+  if (!p) return '-';
+  // 08xx-xxxx-xxxx
+  const s = p.toString();
+  if (s.length >= 11) {
+    return s.slice(0,4) + '-' + s.slice(4,8) + '-' + s.slice(8);
+  }
+  return s;
+}
+
+function contactWA() {
+  const msg = 'Assalamualaikum, saya mau tanya produk di Shakira Hijab Store';
+  window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
+}
+
+/* Overlay close */
+document.getElementById('loginOverlay').addEventListener('click', e => {
+  if (e.target.id === 'loginOverlay') closeLoginModal();
+});
+document.getElementById('userMenuOverlay').addEventListener('click', e => {
+  if (e.target.id === 'userMenuOverlay') closeUserMenu();
+});
+
+/* Enter key on login */
+document.getElementById('loginName').addEventListener('keypress', e => {
+  if (e.key === 'Enter') document.getElementById('loginPhone').focus();
+});
+document.getElementById('loginPhone').addEventListener('keypress', e => {
+  if (e.key === 'Enter') submitLogin();
+});
 
 /* ===== RENDER FILTER ===== */
 function renderFilters() {
@@ -946,7 +1298,6 @@ function renderProducts() {
         <p style="font-size:1.1rem;font-weight:700;color:var(--primary-dark);margin-bottom:8px;">
           Belum ada produk di kategori ini
         </p>
-        <p>Silakan tambah produk di <a href="admin.html">Panel Admin</a></p>
       </div>
     `;
     return;
@@ -954,8 +1305,7 @@ function renderProducts() {
 
   grid.innerHTML = filtered.map(p => {
     const discount = (p.oldPrice && p.oldPrice > p.price) 
-      ? Math.round((1 - p.price / p.oldPrice) * 100) 
-      : 0;
+      ? Math.round((1 - p.price / p.oldPrice) * 100) : 0;
     return `
       <div class="card" onclick="openModal(${p.id})">
         <div class="card-img" style="background-image:url('${escapeHtml(p.img)}')">
@@ -995,8 +1345,7 @@ function openModal(id) {
 
   const p = currentProduct;
   const discount = (p.oldPrice && p.oldPrice > p.price) 
-    ? Math.round((1 - p.price / p.oldPrice) * 100) 
-    : 0;
+    ? Math.round((1 - p.price / p.oldPrice) * 100) : 0;
 
   document.getElementById('modalContent').innerHTML = `
     <button class="close-btn" onclick="closeModal()">✕</button>
@@ -1042,7 +1391,6 @@ function openModal(id) {
       </div>
     </div>
   `;
-
   document.getElementById('modalOverlay').classList.add('active');
 }
 
@@ -1155,6 +1503,12 @@ function closeCart() {
 function buildOrderMessage() {
   const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
   let message = `Assalamualaikum, saya mau order di *Shakira Hijab Store* 🧕\n\n`;
+  
+  if (currentUser) {
+    message += `*Nama:* ${currentUser.name}\n`;
+    message += `*No. WA:* ${currentUser.phone}\n\n`;
+  }
+  
   message += `*Detail Pesanan:*\n`;
   message += `━━━━━━━━━━━━━━━━\n`;
   cart.forEach((item, i) => {
@@ -1168,19 +1522,28 @@ function buildOrderMessage() {
   return message;
 }
 
-/* ===== CHECKOUT WHATSAPP ===== */
+/* ===== CHECKOUT WA ===== */
 function checkoutWA() {
   if (cart.length === 0) return;
+  if (!currentUser) {
+    showToast('⚠️ Silakan login terlebih dahulu', 'error');
+    openLoginModal();
+    return;
+  }
   let message = buildOrderMessage();
   message += `Metode pembayaran: *WhatsApp / Transfer*\n`;
   message += `Mohon info ketersediaan & ongkirnya ya. Terima kasih 🙏`;
-  const url = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(message)}`;
-  window.open(url, '_blank');
+  window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(message)}`, '_blank');
 }
 
 /* ===== CHECKOUT QRIS ===== */
 function checkoutQRIS() {
   if (cart.length === 0) return;
+  if (!currentUser) {
+    showToast('⚠️ Silakan login terlebih dahulu', 'error');
+    openLoginModal();
+    return;
+  }
   const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
   document.getElementById('qrisAmount').textContent = formatRupiah(total);
   document.getElementById('qrisOverlay').classList.add('active');
@@ -1203,27 +1566,32 @@ function confirmQRISPayment() {
   message += `Total yang sudah dibayar: *${formatRupiah(total)}*\n\n`;
   message += `Berikut saya lampirkan bukti transfernya ya 🙏\n`;
   message += `Mohon segera diproses pesanannya. Terima kasih 💕`;
-  const url = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(message)}`;
-  window.open(url, '_blank');
+  window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(message)}`, '_blank');
   closeQRIS();
   showToast('📸 Jangan lupa kirim bukti transfer di chat WA!');
 }
 
-/* ===== BUY NOW WA (dari modal produk) ===== */
+/* ===== BUY NOW WA ===== */
 function buyNowWA() {
   if (!currentProduct) return;
+  if (!currentUser) {
+    showToast('⚠️ Silakan login terlebih dahulu', 'error');
+    openLoginModal();
+    return;
+  }
   const p = currentProduct;
   const total = p.price * selectedQty;
   
   let message = `Assalamualaikum, saya mau order di *Shakira Hijab Store* 🧕\n\n`;
+  message += `*Nama:* ${currentUser.name}\n`;
+  message += `*No. WA:* ${currentUser.phone}\n\n`;
   message += `*Produk:* ${p.name}\n`;
   message += `*Warna:* ${selectedColor}\n`;
   message += `*Jumlah:* ${selectedQty} pcs\n`;
   message += `*Total:* ${formatRupiah(total)}\n\n`;
   message += `Mohon info ketersediaan & ongkirnya ya. Terima kasih 🙏`;
 
-  const url = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(message)}`;
-  window.open(url, '_blank');
+  window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(message)}`, '_blank');
 }
 
 /* ===== TOAST ===== */
@@ -1240,7 +1608,8 @@ function showToast(msg) {
 renderFilters();
 renderProducts();
 updateCartUI();
+updateUserUI();
 </script>
 
 </body>
-</html>
+      </html>
