@@ -20,13 +20,29 @@
 
   /* ===== HEADER ===== */
   header {
-    background: linear-gradient(135deg, #d6336c, #a61e4d);
-    color: white;
-    padding: 15px 5%;
     position: sticky;
     top: 0;
     z-index: 100;
     box-shadow: 0 4px 20px rgba(214,51,108,0.3);
+    background: linear-gradient(135deg, #d6336c, #a61e4d);
+    overflow: hidden;
+  }
+  .header-banner {
+    width: 100%;
+    height: 180px;
+    background-image: url('header-hijab.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: #a61e4d;
+    position: relative;
+  }
+  .header-banner::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(166,30,77,0.1), rgba(166,30,77,0.5));
+    pointer-events: none;
   }
   .nav {
     display: flex;
@@ -34,15 +50,38 @@
     align-items: center;
     max-width: 1200px;
     margin: 0 auto;
+    gap: 10px;
+    padding: 12px 5%;
+    position: relative;
+    z-index: 2;
+    background: rgba(166,30,77,0.9);
+    backdrop-filter: blur(6px);
+    color: white;
   }
   .logo {
-    font-size: 1.6rem;
+    font-size: 1.4rem;
     font-weight: 800;
     display: flex;
     align-items: center;
     gap: 8px;
+    color: white;
   }
-  .logo span { color: #ffe0ec; font-weight: 400; font-size: 0.85rem; display: block; }
+  .logo span { color: #ffe0ec; font-weight: 400; font-size: 0.8rem; display: block; }
+  .nav-actions { display: flex; gap: 8px; align-items: center; }
+  .admin-link {
+    background: rgba(255,255,255,0.15);
+    color: white;
+    text-decoration: none;
+    padding: 10px 16px;
+    border-radius: 30px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    transition: 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .admin-link:hover { background: white; color: var(--primary); }
   .cart-btn {
     background: white;
     color: var(--primary);
@@ -86,6 +125,7 @@
     font-size: clamp(1.8rem, 5vw, 3rem);
     color: var(--primary-dark);
     margin-bottom: 12px;
+    position: relative;
   }
   .hero h1 span { color: var(--primary); }
   .hero p {
@@ -93,12 +133,14 @@
     font-size: 1.05rem;
     max-width: 600px;
     margin: 0 auto 25px;
+    position: relative;
   }
   .badge-row {
     display: flex;
     gap: 12px;
     justify-content: center;
     flex-wrap: wrap;
+    position: relative;
   }
   .badge {
     background: white;
@@ -171,6 +213,7 @@
     height: 240px;
     background-size: cover;
     background-position: center;
+    background-color: #f0d0dd;
     position: relative;
   }
   .discount-tag {
@@ -211,6 +254,7 @@
     gap: 8px;
     margin-bottom: 12px;
     margin-top: auto;
+    flex-wrap: wrap;
   }
   .price {
     font-size: 1.15rem;
@@ -234,6 +278,20 @@
     width: 100%;
   }
   .btn-view:hover { opacity: 0.9; }
+
+  /* Empty state */
+  .empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--muted);
+  }
+  .empty-state .emoji { font-size: 4rem; display: block; margin-bottom: 15px; }
+  .empty-state a {
+    color: var(--primary);
+    font-weight: 700;
+    text-decoration: none;
+  }
 
   /* ===== MODAL ===== */
   .modal-overlay {
@@ -267,6 +325,7 @@
   .modal-img {
     background-size: cover;
     background-position: center;
+    background-color: #f0d0dd;
     min-height: 380px;
     position: relative;
   }
@@ -281,13 +340,16 @@
     font-weight: 800;
     color: var(--primary);
     margin: 12px 0;
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 8px;
   }
   .modal-price small {
     font-size: 0.9rem;
     color: var(--muted);
     text-decoration: line-through;
     font-weight: 400;
-    margin-left: 8px;
   }
   .modal-desc {
     color: #555;
@@ -318,6 +380,7 @@
     cursor: pointer;
     border: 3px solid transparent;
     transition: 0.2s;
+    box-shadow: 0 0 0 1px #ddd;
   }
   .color-dot:hover, .color-dot.active { border-color: var(--primary); transform: scale(1.1); }
   .qty-row {
@@ -450,12 +513,13 @@
     border-radius: 10px;
     background-size: cover;
     background-position: center;
+    background-color: #f0d0dd;
     flex-shrink: 0;
   }
   .cart-item-info { flex: 1; }
   .cart-item-info h4 { font-size: 0.88rem; margin-bottom: 3px; }
   .cart-item-info p { font-size: 0.8rem; color: var(--primary); font-weight: 700; }
-  .cart-item-info small { font-size: 0.72rem; color: var(--muted); }
+  .cart-item-info small { font-size: 0.72rem; color: var(--muted); display: flex; align-items: center; gap: 5px; }
   .remove-btn {
     background: none;
     border: none;
@@ -498,7 +562,7 @@
     gap: 6px;
     color: var(--primary-dark);
   }
-  .pay-btn:hover { border-color: var(--primary); background: #fdf2f6; transform: translateY(-2px); }
+  .pay-btn:hover:not(:disabled) { border-color: var(--primary); background: #fdf2f6; transform: translateY(-2px); }
   .pay-btn:disabled { opacity: 0.5; cursor: not-allowed; }
   .pay-btn .icon { font-size: 1.5rem; }
 
@@ -520,7 +584,7 @@
     font-size: 1.4rem;
     margin-bottom: 6px;
   }
-  .qris-modal p {
+  .qris-modal > p {
     color: var(--muted);
     font-size: 0.85rem;
     margin-bottom: 18px;
@@ -621,10 +685,13 @@
     .modal { grid-template-columns: 1fr; }
     .modal-img { min-height: 260px; }
     .logo { font-size: 1.2rem; }
+    .logo span { display: none; }
     .grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; }
     .card-img { height: 190px; }
     .card-body { padding: 12px; }
     .hero { padding: 40px 5% 50px; }
+    .admin-link span { display: none; }
+    .header-banner { height: 120px; }
   }
   @media (max-width: 400px) {
     .grid { grid-template-columns: 1fr 1fr; }
@@ -635,14 +702,18 @@
 
 <!-- HEADER -->
 <header>
+  <div class="header-banner"></div>
   <div class="nav">
     <div class="logo">
       🧕 Shakira <span>Hijab Store</span>
     </div>
-    <button class="cart-btn" onclick="openCart()">
-      🛒 Keranjang
-      <span class="cart-count" id="cartCount">0</span>
-    </button>
+    <div class="nav-actions">
+      <a href="admin.html" class="admin-link" title="Panel Admin">⚙️ <span>Admin</span></a>
+      <button class="cart-btn" onclick="openCart()">
+        🛒 <span>Keranjang</span>
+        <span class="cart-count" id="cartCount">0</span>
+      </button>
+    </div>
   </div>
 </header>
 
@@ -665,10 +736,6 @@
 
   <div class="filters" id="filters">
     <button class="filter-btn active" data-filter="all">Semua</button>
-    <button class="filter-btn" data-filter="Pashmina">Pashmina</button>
-    <button class="filter-btn" data-filter="Instant">Instant</button>
-    <button class="filter-btn" data-filter="Bergo">Bergo</button>
-    <button class="filter-btn" data-filter="Bella Square">Bella Square</button>
   </div>
 
   <div class="grid" id="productGrid"></div>
@@ -676,9 +743,7 @@
 
 <!-- MODAL PREVIEW PRODUK -->
 <div class="modal-overlay" id="modalOverlay">
-  <div class="modal" id="modalContent">
-    <!-- Diisi oleh JS -->
-  </div>
+  <div class="modal" id="modalContent"></div>
 </div>
 
 <!-- QRIS MODAL -->
@@ -749,8 +814,8 @@
 /* ===== KONFIGURASI ===== */
 const WA_NUMBER = '6285782186348'; // 085782186348
 
-/* ===== DATA PRODUK ===== */
-const products = [
+/* ===== DATA PRODUK DEFAULT ===== */
+const DEFAULT_PRODUCTS = [
   {
     id: 1, name: "Pashmina Ceruty Babydoll", category: "Pashmina",
     price: 45000, oldPrice: 65000, rating: 4.9, sold: 1250,
@@ -817,6 +882,23 @@ const products = [
   }
 ];
 
+/* ===== AMBIL PRODUK DARI LOCALSTORAGE (hasil edit admin) ===== */
+let products = [];
+(function initProducts() {
+  const stored = localStorage.getItem('shakira_products');
+  if (stored) {
+    try {
+      const parsed = JSON.parse(stored);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        products = parsed;
+        return;
+      }
+    } catch(e) {}
+  }
+  products = JSON.parse(JSON.stringify(DEFAULT_PRODUCTS));
+  localStorage.setItem('shakira_products', JSON.stringify(products));
+})();
+
 /* ===== STATE ===== */
 let cart = JSON.parse(localStorage.getItem('shakira_cart')) || [];
 let currentFilter = 'all';
@@ -826,7 +908,28 @@ let selectedQty = 1;
 
 /* ===== HELPER ===== */
 function formatRupiah(n) {
-  return 'Rp ' + n.toLocaleString('id-ID');
+  return 'Rp ' + (n || 0).toLocaleString('id-ID');
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+/* ===== RENDER FILTER ===== */
+function renderFilters() {
+  const cats = ['all', ...new Set(products.map(p => p.category).filter(Boolean))];
+  const labels = { 'all': 'Semua' };
+  document.getElementById('filters').innerHTML = cats.map(c => `
+    <button class="filter-btn ${c === currentFilter ? 'active' : ''}" data-filter="${escapeHtml(c)}">
+      ${labels[c] || escapeHtml(c)}
+    </button>
+  `).join('');
 }
 
 /* ===== RENDER PRODUK ===== */
@@ -836,20 +939,35 @@ function renderProducts() {
     ? products 
     : products.filter(p => p.category === currentFilter);
 
+  if (filtered.length === 0) {
+    grid.innerHTML = `
+      <div class="empty-state">
+        <span class="emoji">🛍️</span>
+        <p style="font-size:1.1rem;font-weight:700;color:var(--primary-dark);margin-bottom:8px;">
+          Belum ada produk di kategori ini
+        </p>
+        <p>Silakan tambah produk di <a href="admin.html">Panel Admin</a></p>
+      </div>
+    `;
+    return;
+  }
+
   grid.innerHTML = filtered.map(p => {
-    const discount = Math.round((1 - p.price / p.oldPrice) * 100);
+    const discount = (p.oldPrice && p.oldPrice > p.price) 
+      ? Math.round((1 - p.price / p.oldPrice) * 100) 
+      : 0;
     return `
       <div class="card" onclick="openModal(${p.id})">
-        <div class="card-img" style="background-image:url('${p.img}')">
+        <div class="card-img" style="background-image:url('${escapeHtml(p.img)}')">
           ${discount > 0 ? `<span class="discount-tag">-${discount}%</span>` : ''}
         </div>
         <div class="card-body">
-          <div class="card-cat">${p.category}</div>
-          <div class="card-title">${p.name}</div>
-          <div class="rating">★★★★★ <span>${p.rating} | ${p.sold} terjual</span></div>
+          <div class="card-cat">${escapeHtml(p.category)}</div>
+          <div class="card-title">${escapeHtml(p.name)}</div>
+          <div class="rating">★★★★★ <span>${p.rating || 5} | ${p.sold || 0} terjual</span></div>
           <div class="price-row">
             <span class="price">${formatRupiah(p.price)}</span>
-            <span class="old-price">${formatRupiah(p.oldPrice)}</span>
+            ${(p.oldPrice && p.oldPrice > p.price) ? `<span class="old-price">${formatRupiah(p.oldPrice)}</span>` : ''}
           </div>
           <button class="btn-view" onclick="event.stopPropagation(); openModal(${p.id})">Lihat Detail</button>
         </div>
@@ -858,7 +976,7 @@ function renderProducts() {
   }).join('');
 }
 
-/* ===== FILTER ===== */
+/* ===== FILTER EVENT ===== */
 document.getElementById('filters').addEventListener('click', e => {
   if (e.target.classList.contains('filter-btn')) {
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -871,39 +989,42 @@ document.getElementById('filters').addEventListener('click', e => {
 /* ===== MODAL PREVIEW PRODUK ===== */
 function openModal(id) {
   currentProduct = products.find(p => p.id === id);
-  selectedColor = currentProduct.colors[0];
+  if (!currentProduct) return;
+  selectedColor = (currentProduct.colors && currentProduct.colors[0]) || '#d6336c';
   selectedQty = 1;
 
   const p = currentProduct;
-  const discount = Math.round((1 - p.price / p.oldPrice) * 100);
+  const discount = (p.oldPrice && p.oldPrice > p.price) 
+    ? Math.round((1 - p.price / p.oldPrice) * 100) 
+    : 0;
 
   document.getElementById('modalContent').innerHTML = `
     <button class="close-btn" onclick="closeModal()">✕</button>
-    <div class="modal-img" style="background-image:url('${p.img}')">
+    <div class="modal-img" style="background-image:url('${escapeHtml(p.img)}')">
       ${discount > 0 ? `<span class="discount-tag" style="top:14px;left:14px;">-${discount}%</span>` : ''}
     </div>
     <div class="modal-info">
-      <div class="card-cat">${p.category}</div>
-      <h2>${p.name}</h2>
-      <div class="rating">★★★★★ <span>${p.rating} | ${p.sold} terjual</span></div>
+      <div class="card-cat">${escapeHtml(p.category)}</div>
+      <h2>${escapeHtml(p.name)}</h2>
+      <div class="rating">★★★★★ <span>${p.rating || 5} | ${p.sold || 0} terjual</span></div>
       <div class="modal-price">
         ${formatRupiah(p.price)}
-        <small>${formatRupiah(p.oldPrice)}</small>
+        ${(p.oldPrice && p.oldPrice > p.price) ? `<small>${formatRupiah(p.oldPrice)}</small>` : ''}
       </div>
-      <p class="modal-desc">${p.desc}</p>
+      <p class="modal-desc">${escapeHtml(p.desc || '')}</p>
       <div class="spec">
-        <span>🧵 ${p.material}</span>
-        <span>📏 ${p.size}</span>
-        ${p.tags.map(t => `<span>✨ ${t}</span>`).join('')}
+        ${p.material ? `<span>🧵 ${escapeHtml(p.material)}</span>` : ''}
+        ${p.size ? `<span>📏 ${escapeHtml(p.size)}</span>` : ''}
+        ${(p.tags || []).map(t => `<span>✨ ${escapeHtml(t)}</span>`).join('')}
       </div>
       <div class="color-picker">
         <label>Pilih Warna:</label>
         <div class="colors" id="colorOptions">
-          ${p.colors.map((c, i) => `
-            <div class="color-dot ${i===0?'active':''}" 
-                 style="background:${c}" 
-                 data-color="${c}"
-                 onclick="selectColor(this, '${c}')"></div>
+          ${(p.colors || []).map((c, i) => `
+            <div class="color-dot ${i === 0 ? 'active' : ''}" 
+                 style="background:${escapeHtml(c)}" 
+                 data-color="${escapeHtml(c)}"
+                 onclick="selectColor(this, '${escapeHtml(c)}')"></div>
           `).join('')}
         </div>
       </div>
@@ -997,11 +1118,11 @@ function updateCartUI() {
 
   itemsEl.innerHTML = cart.map((item, idx) => `
     <div class="cart-item">
-      <div class="cart-item-img" style="background-image:url('${item.img}')"></div>
+      <div class="cart-item-img" style="background-image:url('${escapeHtml(item.img)}')"></div>
       <div class="cart-item-info">
-        <h4>${item.name}</h4>
+        <h4>${escapeHtml(item.name)}</h4>
         <p>${formatRupiah(item.price)} × ${item.qty}</p>
-        <small>Warna: <span style="display:inline-block;width:12px;height:12px;background:${item.color};border-radius:50%;vertical-align:middle;border:1px solid #ddd;"></span></small>
+        <small>Warna: <span style="display:inline-block;width:12px;height:12px;background:${escapeHtml(item.color)};border-radius:50%;vertical-align:middle;border:1px solid #ddd;"></span></small>
       </div>
       <button class="remove-btn" onclick="removeFromCart(${idx})">🗑️</button>
     </div>
@@ -1116,9 +1237,10 @@ function showToast(msg) {
 }
 
 /* ===== INIT ===== */
+renderFilters();
 renderProducts();
 updateCartUI();
 </script>
 
 </body>
-    </html>
+</html>
