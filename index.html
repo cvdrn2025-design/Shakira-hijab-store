@@ -1,0 +1,1610 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shakira Hijab Store - Hijab Kekinian</title>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+
+<!-- PWA Manifest -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#d6336c">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Shakira Hijab">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+
+<style>
+  :root {
+    --primary: #d6336c;
+    --primary-dark: #a61e4d;
+    --secondary: #f8a5c2;
+    --bg: #fdf2f6;
+    --card: #ffffff;
+    --text: #2d2d2d;
+    --muted: #888;
+    --danger: #ff4757;
+    --success: #00b894;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
+  body { background: var(--bg); color: var(--text); }
+
+  /* ===== HEADER ===== */
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 4px 20px rgba(214,51,108,0.3);
+    background: linear-gradient(135deg, #d6336c, #a61e4d);
+    overflow: hidden;
+  }
+  .header-banner {
+    width: 100%;
+    height: auto;
+    background-image: url('header-hijab.png');
+    background-size: 100% 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: #a61e4d;
+    position: relative;
+    aspect-ratio: 1920 / 400;
+    min-height: 70px;
+    max-height: 260px;
+  }
+  .header-banner::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(166,30,77,0.05), rgba(166,30,77,0.3));
+    pointer-events: none;
+  }
+  .nav {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 4%;
+    position: relative;
+    z-index: 2;
+    background: rgba(166,30,77,0.92);
+    backdrop-filter: blur(6px);
+    color: white;
+    flex-wrap: nowrap;
+  }
+  .nav-actions { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+
+  .login-btn {
+    background: white;
+    color: var(--primary);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 30px;
+    cursor: pointer;
+    font-weight: 800;
+    font-size: 0.9rem;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.2);
+  }
+  .login-btn:hover { background: #ffe0ec; transform: scale(1.05); }
+
+  .user-chip {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    background: white;
+    border: none;
+    padding: 4px 16px 4px 4px;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.3s;
+    color: var(--primary-dark);
+    font-weight: 800;
+    font-size: 0.88rem;
+    white-space: nowrap;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.2);
+    position: relative;
+  }
+  .user-chip:hover { background: #ffe0ec; transform: scale(1.05); }
+  .user-chip.active { display: flex; }
+  .user-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #d6336c, #a61e4d);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    font-size: 1rem;
+    color: white;
+    flex-shrink: 0;
+    text-transform: uppercase;
+    border: 2px solid #ffe0ec;
+    box-shadow: 0 0 0 2px white;
+    position: relative;
+  }
+  .user-avatar::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    right: -1px;
+    width: 11px;
+    height: 11px;
+    background: #00b894;
+    border: 2px solid white;
+    border-radius: 50%;
+  }
+  .user-name {
+    max-width: 120px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    line-height: 1.15;
+    text-align: left;
+  }
+  .user-name small { font-size: 0.65rem; color: var(--muted); font-weight: 500; }
+  .user-name strong {
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: var(--primary-dark);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 120px;
+  }
+
+  .cart-btn {
+    background: white;
+    color: var(--primary);
+    border: none;
+    padding: 10px 18px;
+    border-radius: 30px;
+    cursor: pointer;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.2);
+  }
+  .cart-btn:hover { transform: scale(1.05); background: #ffe0ec; }
+  .cart-count {
+    background: var(--primary);
+    color: white;
+    border-radius: 50%;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 800;
+  }
+
+  /* ===== HERO ===== */
+  .hero {
+    background: linear-gradient(135deg, #f8a5c2, #ffd6e7);
+    padding: 60px 5% 70px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '🧕';
+    position: absolute;
+    font-size: 200px;
+    opacity: 0.1;
+    right: -30px;
+    top: -30px;
+  }
+  .hero .greeting {
+    display: none;
+    color: var(--primary-dark);
+    font-weight: 700;
+    background: white;
+    padding: 8px 20px;
+    border-radius: 30px;
+    font-size: 0.9rem;
+    margin: 0 auto 15px;
+    width: fit-content;
+    position: relative;
+    box-shadow: 0 4px 12px rgba(214,51,108,0.15);
+  }
+  .hero .greeting.active { display: block; }
+  .hero h1 {
+    font-size: clamp(1.8rem, 5vw, 3rem);
+    color: var(--primary-dark);
+    margin-bottom: 12px;
+    position: relative;
+  }
+  .hero h1 span { color: var(--primary); }
+  .hero p {
+    color: #7a3b52;
+    font-size: 1.05rem;
+    max-width: 600px;
+    margin: 0 auto 25px;
+    position: relative;
+  }
+  .badge-row {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+    position: relative;
+  }
+  .badge {
+    background: white;
+    padding: 8px 16px;
+    border-radius: 30px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--primary-dark);
+    box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+  }
+
+  /* ===== FILTER ===== */
+  .container { max-width: 1200px; margin: 0 auto; padding: 0 5%; }
+  .section-title {
+    text-align: center;
+    margin: 45px 0 8px;
+    font-size: 1.8rem;
+    color: var(--primary-dark);
+  }
+  .section-sub {
+    text-align: center;
+    color: var(--muted);
+    margin-bottom: 30px;
+  }
+  .filters {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 30px;
+  }
+  .filter-btn {
+    background: white;
+    border: 2px solid #f0d0dd;
+    color: var(--primary-dark);
+    padding: 8px 20px;
+    border-radius: 30px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: 0.3s;
+  }
+  .filter-btn:hover, .filter-btn.active {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+  }
+
+  /* ===== PRODUK GRID ===== */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 22px;
+    padding-bottom: 50px;
+  }
+  .card {
+    background: var(--card);
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 5px 20px rgba(214,51,108,0.08);
+    transition: 0.3s;
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+  }
+  .card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 35px rgba(214,51,108,0.2);
+  }
+  .card-img {
+    height: 240px;
+    background-size: cover;
+    background-position: center;
+    background-color: #f0d0dd;
+    position: relative;
+  }
+  .discount-tag {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: var(--danger);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+  .card-body { padding: 16px; flex: 1; display: flex; flex-direction: column; }
+  .card-cat {
+    font-size: 0.72rem;
+    color: var(--primary);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+  .card-title {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    line-height: 1.3;
+  }
+  .rating {
+    color: #ffb400;
+    font-size: 0.8rem;
+    margin-bottom: 10px;
+  }
+  .rating span { color: var(--muted); margin-left: 5px; }
+  .price-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    margin-top: auto;
+    flex-wrap: wrap;
+  }
+  .price { font-size: 1.15rem; font-weight: 800; color: var(--primary); }
+  .old-price { font-size: 0.85rem; color: var(--muted); text-decoration: line-through; }
+  .btn-view {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.3s;
+    width: 100%;
+  }
+  .btn-view:hover { opacity: 0.9; }
+
+  .empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--muted);
+  }
+  .empty-state .emoji { font-size: 4rem; display: block; margin-bottom: 15px; }
+
+  /* ===== MODAL ===== */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+    backdrop-filter: blur(4px);
+  }
+  .modal-overlay.active { display: flex; }
+  .modal {
+    background: white;
+    border-radius: 22px;
+    max-width: 850px;
+    width: 100%;
+    max-height: 92vh;
+    overflow-y: auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    animation: popIn 0.3s ease;
+    position: relative;
+  }
+  @keyframes popIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  .modal-img {
+    background-size: cover;
+    background-position: center;
+    background-color: #f0d0dd;
+    min-height: 380px;
+    position: relative;
+  }
+  .modal-info { padding: 28px; }
+  .modal-info h2 { font-size: 1.6rem; color: var(--primary-dark); margin-bottom: 8px; }
+  .modal-price {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--primary);
+    margin: 12px 0;
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .modal-price small { font-size: 0.9rem; color: var(--muted); text-decoration: line-through; font-weight: 400; }
+  .modal-desc { color: #555; line-height: 1.7; font-size: 0.92rem; margin-bottom: 18px; }
+  .spec { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+  .spec span {
+    background: #fdf2f6;
+    color: var(--primary-dark);
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 600;
+  }
+  .color-picker { margin-bottom: 18px; }
+  .color-picker label { font-weight: 700; font-size: 0.85rem; display: block; margin-bottom: 8px; }
+  .colors { display: flex; gap: 10px; flex-wrap: wrap; }
+  .color-dot {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 3px solid transparent;
+    transition: 0.2s;
+    box-shadow: 0 0 0 1px #ddd;
+  }
+  .color-dot:hover, .color-dot.active { border-color: var(--primary); transform: scale(1.1); }
+  .qty-row { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
+  .qty-row label { font-weight: 700; font-size: 0.85rem; }
+  .qty-ctrl {
+    display: flex;
+    align-items: center;
+    border: 2px solid #f0d0dd;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .qty-ctrl button {
+    background: none;
+    border: none;
+    width: 36px;
+    height: 36px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    color: var(--primary);
+    font-weight: 700;
+  }
+  .qty-ctrl button:hover { background: #fdf2f6; }
+  .qty-ctrl span { width: 40px; text-align: center; font-weight: 700; }
+  .modal-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  .btn-add {
+    flex: 1;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white;
+    border: none;
+    padding: 14px;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 0.95rem;
+    transition: 0.3s;
+    min-width: 160px;
+  }
+  .btn-add:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(214,51,108,0.35); }
+  .btn-wa {
+    background: #25D366;
+    color: white;
+    border: none;
+    padding: 14px 20px;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: 0.3s;
+  }
+  .btn-wa:hover { background: #1ebe5d; }
+  .close-btn {
+    position: absolute;
+    top: 14px; right: 14px;
+    background: white;
+    border: none;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.2rem;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+    z-index: 5;
+  }
+
+  /* ===== LOGIN MODAL ===== */
+  .login-modal-box {
+    background: white;
+    border-radius: 22px;
+    max-width: 420px;
+    width: 100%;
+    padding: 34px 28px;
+    text-align: center;
+    animation: popIn 0.3s ease;
+    position: relative;
+    max-height: 92vh;
+    overflow-y: auto;
+  }
+  .login-modal-box .icon-top { font-size: 3rem; margin-bottom: 8px; }
+  .login-modal-box h2 { color: var(--primary-dark); font-size: 1.4rem; margin-bottom: 6px; }
+  .login-modal-box .subtitle { color: var(--muted); font-size: 0.85rem; margin-bottom: 22px; }
+  .login-modal-box input {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid #f0d0dd;
+    border-radius: 12px;
+    font-size: 1rem;
+    outline: none;
+    margin-bottom: 12px;
+    transition: 0.3s;
+    font-family: inherit;
+  }
+  .login-modal-box input:focus { border-color: var(--primary); background: #fff; }
+  .btn-login-submit {
+    width: 100%;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white;
+    border: none;
+    padding: 14px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: 0.3s;
+    margin-top: 8px;
+  }
+  .btn-login-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(214,51,108,0.35); }
+  .login-terms { font-size: 0.75rem; color: var(--muted); margin-top: 14px; line-height: 1.5; }
+
+  /* ===== USER MENU ===== */
+  .user-menu-box {
+    background: white;
+    border-radius: 18px;
+    max-width: 340px;
+    width: 100%;
+    padding: 0;
+    animation: popIn 0.3s ease;
+    overflow: hidden;
+    position: relative;
+  }
+  .user-menu-header {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white;
+    padding: 24px 22px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .user-menu-header .big-avatar {
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    background: white;
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    font-size: 1.6rem;
+    border: 3px solid rgba(255,255,255,0.5);
+    text-transform: uppercase;
+    flex-shrink: 0;
+    position: relative;
+  }
+  .user-menu-header .big-avatar::after {
+    content: '';
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 14px;
+    height: 14px;
+    background: #00b894;
+    border: 2px solid white;
+    border-radius: 50%;
+  }
+  .user-menu-header h3 { font-size: 1.05rem; font-weight: 800; margin-bottom: 2px; word-break: break-word; }
+  .user-menu-header small { font-size: 0.78rem; opacity: 0.9; display: block; word-break: break-all; }
+  .user-menu-body { padding: 10px; }
+  .user-menu-item {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    border: none;
+    background: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--text);
+    text-align: left;
+    transition: 0.2s;
+    font-family: inherit;
+  }
+  .user-menu-item:hover { background: #fdf2f6; color: var(--primary-dark); }
+  .user-menu-item .ico { font-size: 1.15rem; width: 24px; text-align: center; }
+  .user-menu-item.danger { color: var(--danger); }
+  .user-menu-item.danger:hover { background: #ffe0e3; color: var(--danger); }
+
+  /* ===== CART DRAWER ===== */
+  .cart-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: none;
+    z-index: 1100;
+  }
+  .cart-overlay.active { display: block; }
+  .cart-drawer {
+    position: fixed;
+    right: -420px;
+    top: 0;
+    width: 400px;
+    max-width: 90vw;
+    height: 100%;
+    background: white;
+    z-index: 1200;
+    transition: right 0.35s ease;
+    display: flex;
+    flex-direction: column;
+    box-shadow: -5px 0 30px rgba(0,0,0,0.2);
+  }
+  .cart-drawer.open { right: 0; }
+  .cart-header {
+    padding: 20px;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .cart-header h3 { font-size: 1.2rem; }
+  .cart-header button {
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: white;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.1rem;
+  }
+  .cart-items { flex: 1; overflow-y: auto; padding: 15px; }
+  .cart-empty { text-align: center; color: var(--muted); padding: 60px 20px; }
+  .cart-empty .emoji { font-size: 4rem; display: block; margin-bottom: 15px; }
+  .cart-item {
+    display: flex;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 12px;
+    background: #fdf2f6;
+    margin-bottom: 12px;
+    align-items: center;
+  }
+  .cart-item-img {
+    width: 60px; height: 60px;
+    border-radius: 10px;
+    background-size: cover;
+    background-position: center;
+    background-color: #f0d0dd;
+    flex-shrink: 0;
+  }
+  .cart-item-info { flex: 1; }
+  .cart-item-info h4 { font-size: 0.88rem; margin-bottom: 3px; }
+  .cart-item-info p { font-size: 0.8rem; color: var(--primary); font-weight: 700; }
+  .cart-item-info small { font-size: 0.72rem; color: var(--muted); display: flex; align-items: center; gap: 5px; }
+  .remove-btn { background: none; border: none; color: var(--danger); cursor: pointer; font-size: 1.1rem; }
+  .cart-footer { padding: 20px; border-top: 1px solid #f0d0dd; background: #fff; }
+  .total-row {
+    display: flex;
+    justify-content: space-between;
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+    color: var(--primary-dark);
+  }
+
+  .payment-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .pay-btn {
+    padding: 14px 10px;
+    border-radius: 12px;
+    border: 2px solid #f0d0dd;
+    background: white;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: 0.3s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    color: var(--primary-dark);
+  }
+  .pay-btn:hover:not(:disabled) { border-color: var(--primary); background: #fdf2f6; transform: translateY(-2px); }
+  .pay-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .pay-btn .icon { font-size: 1.5rem; }
+
+  /* ===== QRIS MODAL ===== */
+  .qris-modal {
+    background: white;
+    border-radius: 22px;
+    max-width: 420px;
+    width: 100%;
+    padding: 30px 25px;
+    text-align: center;
+    animation: popIn 0.3s ease;
+    max-height: 92vh;
+    overflow-y: auto;
+    position: relative;
+  }
+  .qris-modal h2 { color: var(--primary-dark); font-size: 1.4rem; margin-bottom: 6px; }
+  .qris-modal > p { color: var(--muted); font-size: 0.85rem; margin-bottom: 18px; }
+  .qris-img {
+    width: 100%;
+    max-width: 300px;
+    border-radius: 14px;
+    border: 3px solid #f0d0dd;
+    padding: 8px;
+    background: white;
+    margin: 0 auto 18px;
+    display: block;
+  }
+  .qris-total { background: #fdf2f6; padding: 14px; border-radius: 12px; margin-bottom: 18px; }
+  .qris-total small { color: var(--muted); font-size: 0.8rem; display: block; margin-bottom: 4px; }
+  .qris-total strong { color: var(--primary); font-size: 1.4rem; font-weight: 800; }
+  .qris-actions { display: flex; gap: 10px; flex-direction: column; }
+  .btn-confirm-wa {
+    background: #25D366;
+    color: white;
+    border: none;
+    padding: 14px;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 0.95rem;
+    transition: 0.3s;
+  }
+  .btn-confirm-wa:hover { background: #1ebe5d; }
+  .btn-cancel {
+    background: #f0d0dd;
+    color: var(--primary-dark);
+    border: none;
+    padding: 12px;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+
+  /* ===== FOOTER ===== */
+  footer {
+    background: linear-gradient(135deg, #a61e4d, #d6336c);
+    color: white;
+    text-align: center;
+    padding: 40px 5% 25px;
+    margin-top: 30px;
+  }
+  footer h3 { font-size: 1.4rem; margin-bottom: 10px; }
+  footer p { opacity: 0.9; font-size: 0.9rem; margin-bottom: 6px; }
+  .socials { display: flex; gap: 15px; justify-content: center; margin: 18px 0; }
+  .socials a {
+    color: white;
+    text-decoration: none;
+    background: rgba(255,255,255,0.15);
+    width: 42px; height: 42px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    transition: 0.3s;
+  }
+  .socials a:hover { background: white; color: var(--primary); }
+  .copyright { font-size: 0.8rem; opacity: 0.7; margin-top: 15px; }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--primary-dark);
+    color: white;
+    padding: 14px 26px;
+    border-radius: 12px;
+    font-weight: 600;
+    z-index: 2000;
+    transition: 0.4s;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+    max-width: 90vw;
+    text-align: center;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* Loading spinner */
+  .loading-spinner {
+    display: inline-block;
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f0d0dd;
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-bottom: 15px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 768px) {
+    .modal { grid-template-columns: 1fr; }
+    .modal-img { min-height: 260px; }
+    .grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; }
+    .card-img { height: 190px; }
+    .card-body { padding: 12px; }
+    .hero { padding: 40px 5% 50px; }
+    .header-banner { min-height: 80px; }
+    .login-btn { padding: 8px 14px; font-size: 0.82rem; }
+    .user-chip { padding: 3px 12px 3px 3px; gap: 6px; }
+    .user-avatar { width: 32px; height: 32px; font-size: 0.9rem; }
+    .user-name { max-width: 75px; }
+    .user-name strong { font-size: 0.78rem; max-width: 75px; }
+    .user-name small { font-size: 0.6rem; }
+    .cart-btn { padding: 8px 14px; font-size: 0.82rem; }
+  }
+  @media (max-width: 400px) {
+    .grid { grid-template-columns: 1fr 1fr; }
+    .header-banner { min-height: 60px; }
+    .login-btn .txt { display: none; }
+    .login-btn { padding: 8px 12px; }
+    .cart-btn .txt { display: none; }
+    .cart-btn { padding: 8px 12px; }
+    .user-name { display: none; }
+    .user-chip { padding: 3px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-banner"></div>
+  <div class="nav">
+    <div class="nav-actions">
+      <button class="login-btn" id="loginBtn" onclick="openLoginModal()">
+        👤 <span class="txt">Masuk</span>
+      </button>
+      <button class="user-chip" id="userChip" onclick="openUserMenu()" title="Menu Akun">
+        <span class="user-avatar" id="userAvatar">S</span>
+        <span class="user-name">
+          <strong id="userNameChip">Hi, Kak</strong>
+          <small>Pengunjung</small>
+        </span>
+      </button>
+      <button class="cart-btn" onclick="openCart()">
+        🛒 <span class="txt">Keranjang</span>
+        <span class="cart-count" id="cartCount">0</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="greeting" id="heroGreeting"></div>
+  <h1>Tampil <span>Kekinian</span> dengan Hijab Pilihan</h1>
+  <p>Koleksi hijab, kerudung, dan pashmina premium dengan bahan adem, motif trendy, dan harga bersahabat. Cocok untuk daily, kerja, dan acara spesial.</p>
+  <div class="badge-row">
+    <div class="badge">✨ Bahan Premium</div>
+    <div class="badge">🚚 Free Ongkir</div>
+    <div class="badge">💯 Original</div>
+    <div class="badge">⚡ Ready Stock</div>
+  </div>
+</section>
+
+<!-- PRODUK -->
+<div class="container">
+  <h2 class="section-title">Koleksi Terbaru</h2>
+  <p class="section-sub">Pilih gaya favoritmu, klik produk untuk melihat detail</p>
+  <div class="filters" id="filters"></div>
+  <div class="grid" id="productGrid"></div>
+</div>
+
+<!-- MODAL PREVIEW PRODUK -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modalContent"></div>
+</div>
+
+<!-- LOGIN MODAL -->
+<div class="modal-overlay" id="loginOverlay">
+  <div class="login-modal-box">
+    <button class="close-btn" onclick="closeLoginModal()">✕</button>
+    <div class="icon-top">🧕</div>
+    <h2>Selamat Datang!</h2>
+    <p class="subtitle">Isi data untuk pengalaman belanja yang lebih personal</p>
+    <input type="text" id="loginName" placeholder="Nama lengkap kamu" maxlength="40">
+    <input type="tel" id="loginPhone" placeholder="Nomor WhatsApp (08xx)" maxlength="20" inputmode="numeric">
+    <button class="btn-login-submit" onclick="submitLogin()">✨ Masuk Sekarang</button>
+    <p class="login-terms">Dengan masuk, kamu setuju data digunakan untuk mempermudah proses pemesanan.</p>
+  </div>
+</div>
+
+<!-- USER MENU MODAL -->
+<div class="modal-overlay" id="userMenuOverlay">
+  <div class="user-menu-box">
+    <div class="user-menu-header">
+      <div class="big-avatar" id="menuAvatar">S</div>
+      <div style="flex:1;min-width:0;">
+        <h3 id="menuName">Nama Pengunjung</h3>
+        <small id="menuPhone">08xx-xxxx-xxxx</small>
+      </div>
+    </div>
+    <div class="user-menu-body">
+      <button class="user-menu-item" onclick="openCart(); closeUserMenu();">
+        <span class="ico">🛒</span> Keranjang Saya
+      </button>
+      <button class="user-menu-item" onclick="contactWA(); closeUserMenu();">
+        <span class="ico">💬</span> Hubungi Toko
+      </button>
+      <button class="user-menu-item danger" onclick="logoutUser()">
+        <span class="ico">🚪</span> Keluar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- QRIS MODAL -->
+<div class="modal-overlay" id="qrisOverlay">
+  <div class="qris-modal">
+    <button class="close-btn" onclick="closeQRIS()">✕</button>
+    <h2>💳 Pembayaran QRIS</h2>
+    <p>Scan kode QRIS di bawah untuk menyelesaikan pembayaran</p>
+    <img src="qris.png" alt="QRIS Shakira Hijab Store" class="qris-img" onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22300%22 height=%22400%22><rect width=%22300%22 height=%22400%22 fill=%22%23fdf2f6%22/><text x=%22150%22 y=%22200%22 font-size=%2218%22 text-anchor=%22middle%22 fill=%22%23a61e4d%22 font-family=%22sans-serif%22>QRIS.png tidak ditemukan</text></svg>';">
+    <div class="qris-total">
+      <small>Total Pembayaran</small>
+      <strong id="qrisAmount">Rp 0</strong>
+    </div>
+    <div class="qris-actions">
+      <button class="btn-confirm-wa" onclick="confirmQRISPayment()">✅ Saya Sudah Bayar — Konfirmasi via WA</button>
+      <button class="btn-cancel" onclick="closeQRIS()">Batal</button>
+    </div>
+  </div>
+</div>
+
+<!-- CART DRAWER -->
+<div class="cart-overlay" id="cartOverlay" onclick="closeCart()"></div>
+<div class="cart-drawer" id="cartDrawer">
+  <div class="cart-header">
+    <h3>🛒 Keranjang Belanja</h3>
+    <button onclick="closeCart()">✕</button>
+  </div>
+  <div class="cart-items" id="cartItems"></div>
+  <div class="cart-footer">
+    <div class="total-row">
+      <span>Total:</span>
+      <span id="cartTotal">Rp 0</span>
+    </div>
+    <div class="payment-options">
+      <button class="pay-btn" id="payWA" onclick="checkoutWA()">
+        <span class="icon">💬</span> WhatsApp
+      </button>
+      <button class="pay-btn" id="payQRIS" onclick="checkoutQRIS()">
+        <span class="icon">📱</span> QRIS
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <h3>🧕 Shakira Hijab Store</h3>
+  <p>Hijab kekinian untuk muslimah modern</p>
+  <div class="socials">
+    <a href="#" title="Instagram">📷</a>
+    <a href="https://wa.me/6285782186348" title="WhatsApp">💬</a>
+    <a href="#" title="TikTok">🎵</a>
+    <a href="#" title="Shopee">🛍️</a>
+  </div>
+  <p>📍 Jl. Fashion Muslimah No. 123, Jakarta</p>
+  <p>📞 0857-8218-6348</p>
+  <div class="copyright">© 2025 Shakira Hijab Store. All rights reserved.</div>
+</footer>
+
+<!-- TOAST -->
+<div class="toast" id="toast">Produk ditambahkan ke keranjang!</div>
+
+<script>
+/* ===== KONFIGURASI ===== */
+const WA_NUMBER = '6285782186348';
+
+/* ===== DATA PRODUK DEFAULT (dipakai sekali saat Firebase kosong) ===== */
+const DEFAULT_PRODUCTS = [
+  {
+    id: 1, name: "Pashmina Ceruty Babydoll", category: "Pashmina",
+    price: 45000, oldPrice: 65000, rating: 4.9, sold: 1250,
+    colors: ["#d6336c", "#f8a5c2", "#2d2d2d", "#8e44ad", "#e8d5b7"],
+    desc: "Pashmina premium berbahan ceruty babydoll yang super lembut, jatuh, dan tidak mudah kusut. Cocok untuk daily maupun acara formal.",
+    material: "Ceruty Babydoll", size: "175 x 75 cm", tags: ["Best Seller", "Adem"],
+    img: "https://images.unsplash.com/photo-1610047611205-1f7c3c1f0e0f?w=600&q=80"
+  },
+  {
+    id: 2, name: "Hijab Instant Jersey Premium", category: "Instant",
+    price: 38000, oldPrice: 55000, rating: 4.8, sold: 2100,
+    colors: ["#000", "#d6336c", "#fff", "#6c5ce7", "#00b894"],
+    desc: "Hijab instant berbahan jersey premium yang stretch, adem, dan tidak perlu dijahit. Praktis dipakai dalam 5 detik!",
+    material: "Jersey Premium", size: "All Size", tags: ["Praktis", "Stretch"],
+    img: "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=600&q=80"
+  },
+  {
+    id: 3, name: "Bergo Maryam Diamond", category: "Bergo",
+    price: 52000, oldPrice: 75000, rating: 4.9, sold: 890,
+    colors: ["#1a1a1a", "#d4af37", "#fff", "#e84393", "#0984e3"],
+    desc: "Bergo dengan aksen diamond yang mewah dan elegan. Bahan diamond italiano yang berkilau, cocok untuk acara pesta dan kondangan.",
+    material: "Diamond Italiano", size: "All Size", tags: ["Mewah", "Kondangan"],
+    img: "https://images.unsplash.com/photo-1583391733956-6c78276477e2?w=600&q=80"
+  },
+  {
+    id: 4, name: "Bella Square Motif Bunga", category: "Bella Square",
+    price: 42000, oldPrice: 60000, rating: 4.7, sold: 1500,
+    colors: ["#f8a5c2", "#74b9ff", "#dfe6e9", "#fdcb6e", "#a29bfe"],
+    desc: "Bella square dengan motif bunga kekinian. Bahan voal yang ringan dan tidak transparan, nyaman dipakai seharian.",
+    material: "Voal Motif", size: "115 x 115 cm", tags: ["Motif", "Ringan"],
+    img: "https://images.unsplash.com/photo-1601924994987-69e26d50dc26?w=600&q=80"
+  },
+  {
+    id: 5, name: "Pashmina Plisket Shimmer", category: "Pashmina",
+    price: 58000, oldPrice: 85000, rating: 4.9, sold: 720,
+    colors: ["#d4af37", "#c0c0c0", "#d6336c", "#2d3436", "#e17055"],
+    desc: "Pashmina plisket dengan efek shimmer yang glamor. Tekstur lipit rapi, jatuh sempurna, bikin tampilan makin elegan.",
+    material: "Plisket Shimmer", size: "180 x 70 cm", tags: ["Glamor", "Plisket"],
+    img: "https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?w=600&q=80"
+  },
+  {
+    id: 6, name: "Instant Jersey Sport", category: "Instant",
+    price: 35000, oldPrice: 50000, rating: 4.8, sold: 3000,
+    colors: ["#000", "#fff", "#00b894", "#e84393", "#0984e3"],
+    desc: "Hijab instant sport khusus untuk olahraga. Bahan dry-fit yang menyerap keringat dan cepat kering. Nyaman untuk gym & lari.",
+    material: "Dry-Fit Jersey", size: "All Size", tags: ["Sport", "Dry-Fit"],
+    img: "https://images.unsplash.com/photo-1518310383802-640c2de311b2?w=600&q=80"
+  },
+  {
+    id: 7, name: "Bergo Anak Cute", category: "Bergo",
+    price: 28000, oldPrice: 40000, rating: 4.9, sold: 1800,
+    colors: ["#ff9ff3", "#feca57", "#48dbfb", "#1dd1a1", "#ff6b6b"],
+    desc: "Bergo khusus untuk anak perempuan. Bahan katun lembut, tidak panas, dan desain lucu dengan berbagai warna ceria.",
+    material: "Katun Lembut", size: "Anak 2-10 th", tags: ["Anak", "Lucu"],
+    img: "https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=600&q=80"
+  },
+  {
+    id: 8, name: "Bella Square Satin Premium", category: "Bella Square",
+    price: 48000, oldPrice: 68000, rating: 4.8, sold: 950,
+    colors: ["#d4af37", "#d6336c", "#000", "#fff", "#6c5ce7"],
+    desc: "Bella square satin premium yang mengkilap dan mewah. Jatuh sempurna, tidak licin, dan nyaman dipakai untuk acara formal.",
+    material: "Satin Premium", size: "115 x 115 cm", tags: ["Satin", "Mewah"],
+    img: "https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?w=600&q=80"
+  }
+];
+
+/* ===== STATE ===== */
+let products = [];
+let cart = JSON.parse(localStorage.getItem('shakira_cart')) || [];
+let currentFilter = 'all';
+let currentProduct = null;
+let selectedColor = null;
+let selectedQty = 1;
+let currentUser = JSON.parse(localStorage.getItem('shakira_user') || 'null');
+let unsubscribeProducts = null;
+
+/* ===== HELPER ===== */
+function formatRupiah(n) {
+  return 'Rp ' + (n || 0).toLocaleString('id-ID');
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+function getInitial(name) {
+  if (!name) return '?';
+  return name.trim().charAt(0).toUpperCase();
+}
+
+function firstName(name) {
+  if (!name) return 'Kak';
+  return name.trim().split(' ')[0];
+}
+
+function formatPhone(p) {
+  if (!p) return '-';
+  const s = p.toString();
+  if (s.length >= 11) return s.slice(0,4) + '-' + s.slice(4,8) + '-' + s.slice(8);
+  return s;
+}
+
+/* ===== FIREBASE: LOAD PRODUK REALTIME ===== */
+function initProductsFromFirebase() {
+  const grid = document.getElementById('productGrid');
+  grid.innerHTML = `
+    <div class="empty-state">
+      <div class="loading-spinner"></div>
+      <p>Memuat produk dari server...</p>
+    </div>
+  `;
+
+  // Cek apakah Firestore kosong → inisialisasi dengan default
+  productsCollection.limit(1).get().then(snapshot => {
+    if (snapshot.empty) {
+      console.log('📦 Firebase kosong, upload data default...');
+      const batch = db.batch();
+      DEFAULT_PRODUCTS.forEach(p => {
+        batch.set(productsCollection.doc(String(p.id)), p);
+      });
+      return batch.commit();
+    }
+  }).then(() => {
+    // Realtime listener
+    if (unsubscribeProducts) unsubscribeProducts();
+    unsubscribeProducts = productsCollection.orderBy('id').onSnapshot(snapshot => {
+      products = [];
+      snapshot.forEach(doc => {
+        products.push(doc.data());
+      });
+
+      if (products.length === 0) {
+        products = JSON.parse(JSON.stringify(DEFAULT_PRODUCTS));
+      }
+
+      renderFilters();
+      renderProducts();
+    }, err => {
+      console.error('Firebase error:', err);
+      fallbackToLocalStorage();
+    });
+  }).catch(err => {
+    console.error('Firebase init error:', err);
+    fallbackToLocalStorage();
+  });
+}
+
+function fallbackToLocalStorage() {
+  console.log('⚠️ Fallback ke localStorage');
+  const stored = localStorage.getItem('shakira_products');
+  if (stored) {
+    try { products = JSON.parse(stored); } catch(e) {}
+  }
+  if (!products.length) {
+    products = JSON.parse(JSON.stringify(DEFAULT_PRODUCTS));
+  }
+  renderFilters();
+  renderProducts();
+  showToast('⚠️ Mode offline: menggunakan data lokal');
+}
+
+/* ===== RENDER FILTER ===== */
+function renderFilters() {
+  const cats = ['all', ...new Set(products.map(p => p.category).filter(Boolean))];
+  const labels = { 'all': 'Semua' };
+  document.getElementById('filters').innerHTML = cats.map(c => `
+    <button class="filter-btn ${c === currentFilter ? 'active' : ''}" data-filter="${escapeHtml(c)}">
+      ${labels[c] || escapeHtml(c)}
+    </button>
+  `).join('');
+}
+
+/* ===== RENDER PRODUK ===== */
+function renderProducts() {
+  const grid = document.getElementById('productGrid');
+  const filtered = currentFilter === 'all' 
+    ? products 
+    : products.filter(p => p.category === currentFilter);
+
+  if (filtered.length === 0) {
+    grid.innerHTML = `
+      <div class="empty-state">
+        <span class="emoji">🛍️</span>
+        <p style="font-size:1.1rem;font-weight:700;color:var(--primary-dark);margin-bottom:8px;">
+          Belum ada produk di kategori ini
+        </p>
+      </div>
+    `;
+    return;
+  }
+
+  grid.innerHTML = filtered.map(p => {
+    const discount = (p.oldPrice && p.oldPrice > p.price) 
+      ? Math.round((1 - p.price / p.oldPrice) * 100) : 0;
+    return `
+      <div class="card" onclick="openModal(${p.id})">
+        <div class="card-img" style="background-image:url('${escapeHtml(p.img)}')">
+          ${discount > 0 ? `<span class="discount-tag">-${discount}%</span>` : ''}
+        </div>
+        <div class="card-body">
+          <div class="card-cat">${escapeHtml(p.category)}</div>
+          <div class="card-title">${escapeHtml(p.name)}</div>
+          <div class="rating">★★★★★ <span>${p.rating || 5} | ${p.sold || 0} terjual</span></div>
+          <div class="price-row">
+            <span class="price">${formatRupiah(p.price)}</span>
+            ${(p.oldPrice && p.oldPrice > p.price) ? `<span class="old-price">${formatRupiah(p.oldPrice)}</span>` : ''}
+          </div>
+          <button class="btn-view" onclick="event.stopPropagation(); openModal(${p.id})">Lihat Detail</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+/* ===== FILTER EVENT ===== */
+document.getElementById('filters').addEventListener('click', e => {
+  if (e.target.classList.contains('filter-btn')) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    e.target.classList.add('active');
+    currentFilter = e.target.dataset.filter;
+    renderProducts();
+  }
+});
+
+/* ===== MODAL PREVIEW PRODUK ===== */
+function openModal(id) {
+  currentProduct = products.find(p => p.id === id);
+  if (!currentProduct) return;
+  selectedColor = (currentProduct.colors && currentProduct.colors[0]) || '#d6336c';
+  selectedQty = 1;
+
+  const p = currentProduct;
+  const discount = (p.oldPrice && p.oldPrice > p.price) 
+    ? Math.round((1 - p.price / p.oldPrice) * 100) : 0;
+
+  document.getElementById('modalContent').innerHTML = `
+    <button class="close-btn" onclick="closeModal()">✕</button>
+    <div class="modal-img" style="background-image:url('${escapeHtml(p.img)}')">
+      ${discount > 0 ? `<span class="discount-tag" style="top:14px;left:14px;">-${discount}%</span>` : ''}
+    </div>
+    <div class="modal-info">
+      <div class="card-cat">${escapeHtml(p.category)}</div>
+      <h2>${escapeHtml(p.name)}</h2>
+      <div class="rating">★★★★★ <span>${p.rating || 5} | ${p.sold || 0} terjual</span></div>
+      <div class="modal-price">
+        ${formatRupiah(p.price)}
+        ${(p.oldPrice && p.oldPrice > p.price) ? `<small>${formatRupiah(p.oldPrice)}</small>` : ''}
+      </div>
+      <p class="modal-desc">${escapeHtml(p.desc || '')}</p>
+      <div class="spec">
+        ${p.material ? `<span>🧵 ${escapeHtml(p.material)}</span>` : ''}
+        ${p.size ? `<span>📏 ${escapeHtml(p.size)}</span>` : ''}
+        ${(p.tags || []).map(t => `<span>✨ ${escapeHtml(t)}</span>`).join('')}
+      </div>
+      <div class="color-picker">
+        <label>Pilih Warna:</label>
+        <div class="colors" id="colorOptions">
+          ${(p.colors || []).map((c, i) => `
+            <div class="color-dot ${i === 0 ? 'active' : ''}" 
+                 style="background:${escapeHtml(c)}" 
+                 data-color="${escapeHtml(c)}"
+                 onclick="selectColor(this, '${escapeHtml(c)}')"></div>
+          `).join('')}
+        </div>
+      </div>
+      <div class="qty-row">
+        <label>Jumlah:</label>
+        <div class="qty-ctrl">
+          <button onclick="changeQty(-1)">−</button>
+          <span id="qtyDisplay">1</span>
+          <button onclick="changeQty(1)">+</button>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-add" onclick="addToCartFromModal()">🛒 Tambah ke Keranjang</button>
+        <button class="btn-wa" onclick="buyNowWA()">💬 Beli Sekarang</button>
+      </div>
+    </div>
+  `;
+  document.getElementById('modalOverlay').classList.add('active');
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('active');
+}
+
+document.getElementById('modalOverlay').addEventListener('click', e => {
+  if (e.target.id === 'modalOverlay') closeModal();
+});
+
+function selectColor(el, color) {
+  document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
+  el.classList.add('active');
+  selectedColor = color;
+}
+
+function changeQty(delta) {
+  selectedQty = Math.max(1, selectedQty + delta);
+  document.getElementById('qtyDisplay').textContent = selectedQty;
+}
+
+/* ===== CART ===== */
+function addToCartFromModal() {
+  if (!currentProduct) return;
+  const existing = cart.find(item => item.id === currentProduct.id && item.color === selectedColor);
+  
+  if (existing) {
+    existing.qty += selectedQty;
+  } else {
+    cart.push({
+      id: currentProduct.id,
+      name: currentProduct.name,
+      price: currentProduct.price,
+      img: currentProduct.img,
+      color: selectedColor,
+      qty: selectedQty
+    });
+  }
+  
+  saveCart();
+  updateCartUI();
+  showToast('✅ Produk ditambahkan ke keranjang!');
+  closeModal();
+}
+
+function saveCart() {
+  localStorage.setItem('shakira_cart', JSON.stringify(cart));
+}
+
+function updateCartUI() {
+  const count = cart.reduce((sum, item) => sum + item.qty, 0);
+  document.getElementById('cartCount').textContent = count;
+
+  const itemsEl = document.getElementById('cartItems');
+  const totalEl = document.getElementById('cartTotal');
+  const payWA = document.getElementById('payWA');
+  const payQRIS = document.getElementById('payQRIS');
+
+  if (cart.length === 0) {
+    itemsEl.innerHTML = `
+      <div class="cart-empty">
+        <span class="emoji">🛍️</span>
+        <p>Keranjang masih kosong</p>
+        <p style="font-size:0.85rem;margin-top:8px;">Yuk pilih hijab favoritmu!</p>
+      </div>
+    `;
+    totalEl.textContent = 'Rp 0';
+    payWA.disabled = true;
+    payQRIS.disabled = true;
+    return;
+  }
+
+  itemsEl.innerHTML = cart.map((item, idx) => `
+    <div class="cart-item">
+      <div class="cart-item-img" style="background-image:url('${escapeHtml(item.img)}')"></div>
+      <div class="cart-item-info">
+        <h4>${escapeHtml(item.name)}</h4>
+        <p>${formatRupiah(item.price)} × ${item.qty}</p>
+        <small>Warna: <span style="display:inline-block;width:12px;height:12px;background:${escapeHtml(item.color)};border-radius:50%;vertical-align:middle;border:1px solid #ddd;"></span></small>
+      </div>
+      <button class="remove-btn" onclick="removeFromCart(${idx})">🗑️</button>
+    </div>
+  `).join('');
+
+  const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+  totalEl.textContent = formatRupiah(total);
+  payWA.disabled = false;
+  payQRIS.disabled = false;
+}
+
+function removeFromCart(idx) {
+  cart.splice(idx, 1);
+  saveCart();
+  updateCartUI();
+  showToast('🗑️ Produk dihapus dari keranjang');
+}
+
+function openCart() {
+  document.getElementById('cartDrawer').classList.add('open');
+  document.getElementById('cartOverlay').classList.add('active');
+}
+
+function closeCart() {
+  document.getElementById('cartDrawer').classList.remove('open');
+  document.getElementById('cartOverlay').classList.remove('active');
+}
+
+/* ===== LOGIN / USER ===== */
+function openLoginModal() {
+  document.getElementById('loginName').value = '';
+  document.getElementById('loginPhone').value = '';
+  document.getElementById('loginOverlay').classList.add('active');
+  setTimeout(() => document.getElementById('loginName').focus(), 200);
+}
+
+function closeLoginModal() {
+  document.getElementById('loginOverlay').classList.remove('active');
+}
+
+function submitLogin() {
+  const name = document.getElementById('loginName').value.trim();
+  const phone = document.getElementById('loginPhone').value.trim().replace(/\D/g, '');
+
+  if (!name) return showToast('❌ Nama wajib diisi!');
+  if (!phone || phone.length < 10) return showToast('❌ Nomor WA tidak valid!');
+
+  currentUser = { name, phone };
+  localStorage.setItem('shakira_user', JSON.stringify(currentUser));
+  closeLoginModal();
+  updateUserUI();
+  showToast('✅ Selamat datang, ' + firstName(name) + '!');
+}
+
+function logoutUser() {
+  currentUser = null;
+  localStorage.removeItem('shakira_user');
+  closeUserMenu();
+  updateUserUI();
+  showToast('👋 Anda telah keluar');
+}
+
+function updateUserUI() {
+  const loginBtn = document.getElementById('loginBtn');
+  const userChip = document.getElementById('userChip');
+  const userAvatar = document.getElementById('userAvatar');
+  const userNameChip = document.getElementById('userNameChip');
+  const heroGreeting = document.getElementById('heroGreeting');
+
+  if (currentUser) {
+    loginBtn.style.display = 'none';
+    userChip.classList.add('active');
+    userAvatar.textContent = getInitial(currentUser.name);
+    userNameChip.textContent = 'Hi, Kak ' + firstName(currentUser.name);
+    heroGreeting.innerHTML = '👋 Hai, <strong>' + escapeHtml(firstName(currentUser.name)) + '</strong>! Selamat belanja di Shakira Hijab Store';
+    heroGreeting.classList.add('active');
+  } else {
+    loginBtn.style.display = 'flex';
+    userChip.classList.remove('active');
+    heroGreeting.classList.remove('active');
+    heroGreeting.innerHTML = '';
+  }
+}
+
+function openUserMenu() {
+  if (!currentUser) return;
+  document.getElementById('menuAvatar').textContent = getInitial(currentUser.name);
+  document.getElementById('menuName').textContent = 'Hi, Kak ' + currentUser.name;
+  document.getElementById('menuPhone').textContent = formatPhone(currentUser.phone);
+  document.getElementById('userMenuOverlay').classList.add('active');
+}
+
+function closeUserMenu() {
+  document.getElementById('userMenuOverlay').classList.remove('active');
+}
+
+function contactWA() {
+  const msg = 'Assalamualaikum, saya mau tanya produk di Shakira Hijab Store';
+  window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
+}
+
+document.getElementById('loginOverlay').addEventListener('click', e => {
+  if (e.target.id === 'loginOverlay') closeLoginModal();
+});
+document.getElementById('userMenuOverlay').addEventListener('click', e => {
+  if (e.target.id === 'userMenuOverlay') closeUserMenu();
+});
+
+document.getElementById('loginName').addEventListener('keypress', e => {
+  if (e.key === 'Enter') document.getElementById('loginPhone').focus();
+});
+document.getElementById('loginPhone').addEventListener('keypress', e => {
+  if (e.key === 'Enter') submitLogin();
+});
+
+/* ===== BUILD MESSAGE ===== */
+function buildOrderMessage() {
+  const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+  let message = `Assalamualaikum, saya mau order di *Shakira Hijab Store* 🧕\n\n`;
+  if (currentUser) {
+    message += `*Nama:* ${currentUser.name}\n`;
+    message += `*No. WA:* ${currentUser.phone}\n\n`;
+  }
+  message += `*Detail Pesanan:*\n`;
+  message += `━━━━━━━━━━━━━━━━\n`;
+  cart.forEach((item, i) => {
+    message += `${i + 1}. *${item.name}*\n`;
+    message += `   Warna: ${item.color}\n`;
+    message += `   Jumlah: ${item.qty} pcs\n`;
+    message += `   Harga: ${formatRupiah(item.price * item.qty)}\n\n`;
+  });
+  message += `━━━━━━━━━━━━━━━━\n`;
+  message += `*Total: ${formatRupiah(total)}*\n\n`;
+  return message;
+}
+
+/* ===== CHECKOUT WA ===== */
+function checkoutWA() {
+  if (cart.length === 0) return;
+  if (!currentUser) {
+    showToast('⚠️ Silakan login terlebih dahulu');
+    openLoginModal();
+    return;
+  }
+  let message = buildOrderMessage();
+  message += `Metode pembayaran: *WhatsApp / Transfer*\n`;
+  message += `Mohon info ketersediaan & ongkirnya ya. Terima kasih 🙏`;
+  window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(message)}`, '_blank');
+}
+
+/* ===== CHECKOUT QRIS ===== */
+function checkoutQRIS() {
+  if (cart.length === 0) return;
+  if (!currentUser) {
+    showToast('⚠️ Silakan login terlebih dahulu');
+    openLoginModal();
+    return;
+  }
+  const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+  document.getElementById('qrisAmount').textContent = formatRupiah(total);
+  document.getElementById('qrisOverlay').classList.add('active');
+  closeCart();
+}
+
+function closeQRIS() {
+  document.getElementById('qrisOverlay').classList.remove('active');
+}
+
+document.getElementById('qrisOverlay').addEventListener('click', e => {
+  if (e.target.id === 'qrisOverlay') closeQRIS();
+});
+
+function confirmQRISPayment() {
+  if (cart.length === 0) return;
+  const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+  let message = buildOrderMessage();
+  message += `Metode pembayaran: *QRIS* ✅\n`;
+  message += `Total yang sudah dibayar: *${formatRupiah(total)}*\n\n`;
+  message += `Berikut saya lampirkan bukti transfernya ya 🙏\n`;
+  message += `Mohon segera diproses pesanannya. Terima kasih 💕`;
+  window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(message)}`, '_blank');
+  closeQRIS();
+  showToast('📸 Jangan lupa kirim bukti transfer di chat WA!');
+}
+
+/* ===== BUY NOW WA ===== */
+function buyNowWA() {
+  if (!currentProduct) return;
+  if (!currentUser) {
+    showToast('⚠️ Silakan login terlebih dahulu');
+    openLoginModal();
+    return;
+  }
+  const p = currentProduct;
+  const total = p.price * selectedQty;
+  let message = `Assalamualaikum, saya mau order di *Shakira Hijab Store* 🧕\n\n`;
+  message += `*Nama:* ${currentUser.name}\n`;
+  message += `*No. WA:* ${currentUser.phone}\n\n`;
+  message += `*Produk:* ${p.name}\n`;
+  message += `*Warna:* ${selectedColor}\n`;
+  message += `*Jumlah:* ${selectedQty} pcs\n`;
+  message += `*Total:* ${formatRupiah(total)}\n\n`;
+  message += `Mohon info ketersediaan & ongkirnya ya. Terima kasih 🙏`;
+  window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(message)}`, '_blank');
+}
+
+/* ===== TOAST ===== */
+let toastTimer;
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove('show'), 2500);
+}
+
+/* ===== INIT ===== */
+initProductsFromFirebase();
+updateCartUI();
+updateUserUI();
+
+/* Cleanup listener saat keluar */
+window.addEventListener('beforeunload', () => {
+  if (unsubscribeProducts) unsubscribeProducts();
+});
+</script>
+
+</body>
+  </html>
